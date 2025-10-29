@@ -1,20 +1,33 @@
-import React, { useState } from "react";
-import { Route, Routes } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
 import Sidebar from "./Components/Sidebar";
 import Chatbox from "./Components/Chatbox";
 import Credits from "./Pages/Credits";
 import { assets } from "./assets/assets";
 import { useAppContext } from "./Context/AppContext";
-import './assets/prism.css';
+import "./assets/prism.css";
 import Login from "./Pages/Login";
 import Loading from "./Pages/Loading";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
-  const { user, theme } = useAppContext();
+  const { user, theme, loadingUser, chats, setSelectedChat } = useAppContext();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { pathname } = useLocation();
+
+  // Auto-select latest chat when chats update
+  useEffect(() => {
+  if (user && chats.length > 0) {
+    setSelectedChat(chats[0]); // select latest chat
+  }
+}, [chats, user, setSelectedChat]);
+
+
+  if (loadingUser) return <Loading />;
 
   return (
     <>
+      <Toaster />
       {!isMenuOpen && user && (
         <img
           src={assets.menu_icon}

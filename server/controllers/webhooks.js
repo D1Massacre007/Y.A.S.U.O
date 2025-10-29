@@ -2,51 +2,58 @@ import Stripe from "stripe";
 import Transaction from "../models/transaction.js";    
 import User from "../models/User.js";
 
-export const stripeWebhook = async (request, response) => {
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
-    const sig = request.headers['stripe-signature'];
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-    let event;
-    try {
-        event = stripe.webhooks.constructEvent(request.rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET);
-    } catch (error) {
-        return response.status(400).send(`Webhook Error: ${error.message}`);
+export const stripeWebhook = async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+
+  let event;
+
+  try {
+    // Use raw body to verify the signature
+    event = stripe.webhooks.constructEvent(req.rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    console.error("⚠️ Webhook signature verification failed.", err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  console.log("Webhook received:", event.type);
+
+  try {
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object;
+      const { transactionId, appId } = session.metadata || {};
+
+      if (!transactionId || appId !== "YASUO") {
+        console.log("Ignored event: missing transactionId or invalid appId");
+        return res.status(200).send("Ignored event");
+      }
+
+      // Find the transaction that hasn't been paid yet
+      const transaction = await Transaction.findOne({ _id: transactionId, isPaid: false });
+      if (!transaction) {
+        console.log("Transaction already processed or not found:", transactionId);
+        return res.status(200).send("Transaction not found or already processed");
+      }
+
+      // Update user credits
+      await User.updateOne(
+        { _id: transaction.userId },
+        { $inc: { credits: transaction.credits } }
+      );
+
+      // Mark transaction as paid
+      transaction.isPaid = true;
+      await transaction.save();
+
+      console.log(`User ${transaction.userId} credited with ${transaction.credits} credits`);
+      return res.status(200).send("Webhook handled successfully");
+    } else {
+      console.log("Event type not handled:", event.type);
+      return res.status(200).send("Event type ignored");
     }
-
-    try {
-        switch (event.type) {
-            case "payment_intent.succeeded": {
-                const paymentIntent = event.data.object;
-                const sessionList = await stripe.checkout.sessions.list({
-                    payment_intent: paymentIntent.id,
-                    limit: 1,
-                });
-                const session = sessionList.data[0];
-                const { transactionId, appId } = session.metadata;
-
-                if (appId === "YASUO") {
-                    const transaction = await Transaction.findOne({ _id: transactionId, isPaid: false });
-
-                    // Update credits in user account
-                    await User.updateOne({ _id: transaction.userId }, { $inc: { credits: transaction.credits } });
-
-                    // Update credit payment status
-                    transaction.isPaid = true;
-                    await transaction.save();
-                } else {
-                    return response.json({ received: true, message: "Ignored event: Invalid app" });
-                }
-                break;
-            }
-            default:
-                console.log("Unhandled event type:", event.type);
-                break;    
-        }
-
-        response.json({ received: true });
-
-    } catch (error) {
-        console.error("Webhook processing error:", error);
-        response.status(500).send("Internal Server Error");
-    }
+  } catch (err) {
+    console.error("Error handling webhook:", err);
+    return res.status(500).send("Internal Server Error");
+  }
 };

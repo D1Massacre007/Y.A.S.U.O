@@ -3,12 +3,58 @@ import { useAppContext } from "../Context/AppContext";
 import { assets, dummyUserData } from "../assets/assets";
 import moment from "moment";
 import logo_full_1_1 from "../assets/logo_full_1_1.png";
+import toast from "react-hot-toast";
 
 const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
-  const { theme, setTheme, chats, navigate, user, setSelectedChat } = useAppContext();
+  const {
+    theme,
+    setTheme,
+    chats,
+    navigate,
+    user,
+    setSelectedChat,
+    createNewChat,
+    axios,
+    setChats,
+    fetchUserChats,
+    setToken,
+    token,
+  } = useAppContext();
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    setToken(null);
+    toast.success("Logged out successfully");
+  };
+
+  const deleteChat = async (e, chatId) => {
+    e.stopPropagation();
+    const confirmDelete = window.confirm("Are you sure you want to delete this chat?");
+    if (!confirmDelete) return;
+
+    const toastId = toast.loading("Deleting...");
+    try {
+      const { data } = await axios.post(
+        "/api/chat/delete",
+        { chatId },
+        { headers: { Authorization: token } }
+      );
+      if (data.success) {
+        setChats((prev) => prev.filter((chat) => chat._id !== chatId));
+        await fetchUserChats();
+        toast.success(data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message);
+    } finally {
+      toast.dismiss(toastId);
+    }
+  };
+
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("online");
   const [manual, setManual] = useState(false);
+  const [creatingChat, setCreatingChat] = useState(false);
 
   const getStatusColor = () => {
     switch (status) {
@@ -50,6 +96,28 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
     );
   };
 
+  const handleCreateChat = async () => {
+  if (creatingChat) return;
+  setCreatingChat(true);
+  try {
+    const { data } = await axios.get("/api/chat/create", {
+      headers: { Authorization: token },
+    });
+    if (data.success) {
+      setChats((prev) => [data.chat, ...prev]); // add new chat to top
+      setSelectedChat(data.chat); // select new chat immediately
+      navigate("/");
+    } else {
+      toast.error(data.message);
+    }
+  } catch (error) {
+    toast.error(error.message);
+  } finally {
+    setCreatingChat(false);
+  }
+};
+
+
   return (
     <div
       className={`flex flex-col h-screen min-w-72 p-5 
@@ -68,11 +136,16 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
 
       {/* New Chat Button */}
       <button
-        className="flex justify-center items-center w-full py-2 mt-10 
+        onClick={handleCreateChat}
+        disabled={creatingChat}
+        className={`flex justify-center items-center w-full py-2 mt-10 
         text-white bg-gradient-to-r from-[#A456F7] to-[#3D81F6] 
-        text-sm rounded-md cursor-pointer hover:opacity-90 transition-all"
+        text-sm rounded-md cursor-pointer hover:opacity-90 transition-all ${
+          creatingChat ? "opacity-60 cursor-not-allowed" : ""
+        }`}
       >
-        <span className="mr-2 text-xl">+</span> New Chat
+        <span className="mr-2 text-xl">+</span>{" "}
+        {creatingChat ? "Creating..." : "New Chat"}
       </button>
 
       {/* Search */}
@@ -124,6 +197,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
                 src={assets.bin_icon}
                 className="hidden group-hover:block w-4 cursor-pointer not-dark:invert"
                 alt="Delete"
+                onClick={(e) => deleteChat(e, chat._id)}
               />
             </div>
           ))}
@@ -142,7 +216,9 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
         />
         <div className="flex flex-col text-sm">
           <p>Credits : {user?.credits ?? dummyUserData.credits}</p>
-          <p className="text-xs text-gray-400">Purchase credits to use quickgpt</p>
+          <p className="text-xs text-gray-400">
+            Purchase credits to use quickgpt
+          </p>
         </div>
       </div>
 
@@ -182,13 +258,12 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
           <p className="text-sm dark:text-primary truncate">
             {user ? user.name : "Login your account"}
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            {status}
-          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{status}</p>
         </div>
 
         {user && (
           <img
+            onClick={logout}
             src={assets.logout_icon}
             className="h-5 cursor-pointer hidden not-dark:invert group-hover:block"
             alt="Logout"
