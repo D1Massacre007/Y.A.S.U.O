@@ -9,6 +9,7 @@ const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
+
   const [user, setUser] = useState(null);
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
@@ -16,9 +17,10 @@ export const AppContextProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token") || null);
   const [loadingUser, setLoadingUser] = useState(true);
 
-  // Fetch logged-in user info
+  // ✅ Fetch logged-in user info
   const fetchUser = async () => {
     if (!token) return setLoadingUser(false);
+
     try {
       const { data } = await axios.get("/api/user/data", {
         headers: { Authorization: token },
@@ -35,7 +37,7 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // Fetch chats of logged-in user
+  // ✅ Fetch user's chats
   const fetchUserChats = async () => {
     if (!token) return;
     try {
@@ -44,40 +46,43 @@ export const AppContextProvider = ({ children }) => {
       });
       if (data.success) {
         setChats(data.chats);
-        setSelectedChat(
-          (prev) => prev || (data.chats.length > 0 ? data.chats[0] : null)
-        );
+        if (data.chats.length > 0 && !selectedChat) {
+          setSelectedChat(data.chats[0]);
+        }
       } else toast.error(data.message);
     } catch (error) {
       toast.error(error.message);
     }
   };
 
-  // Create new chat manually
+  // ✅ Create new chat (only called from Chatbox when typing)
   const createNewChat = async () => {
     if (!user) return toast("Login to create a new chat");
     try {
       const { data } = await axios.get("/api/chat/create", {
         headers: { Authorization: token },
       });
-      if (data.success) {
-        await fetchUserChats();
-        toast.success("New chat created!");
+      if (data.success && data.chat) {
+        const newChat = data.chat;
+        setChats((prev) => [newChat, ...prev]);
+        setSelectedChat(newChat);
+        return newChat;
+      } else {
+        toast.error(data.message || "Failed to create chat");
       }
-      navigate("/");
     } catch (err) {
       toast.error(err.response?.data?.message || err.message);
     }
   };
 
-  // Update theme
+  // ✅ Apply theme
   useEffect(() => {
     if (theme === "dark") document.documentElement.classList.add("dark");
     else document.documentElement.classList.remove("dark");
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  // Load user on token change
+  // ✅ Load user when token changes
   useEffect(() => {
     if (token) fetchUser();
     else {
@@ -86,7 +91,7 @@ export const AppContextProvider = ({ children }) => {
     }
   }, [token]);
 
-  // 🌟 Fetch chats automatically once user is loaded
+  // ✅ Load chats after user is fetched
   useEffect(() => {
     if (user) fetchUserChats();
   }, [user]);

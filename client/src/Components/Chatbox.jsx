@@ -1,4 +1,3 @@
-// Chatbox.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { useAppContext } from "../Context/AppContext";
 import { assets } from "../assets/assets";
@@ -8,15 +7,15 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const suggestions = [
   "Who is Annaz?",
-  "Projects he worked on ?",
-  "What is his everyday schedule ?",
+  "Projects he worked on?",
+  "What is his everyday schedule?",
   "Describe his Professional Experience?",
-  "What is his educational background ?"
+  "What is his educational background?"
 ];
 
 const Chatbox = () => {
   const containerRef = useRef(null);
-  const { selectedChat, theme, user, axios, token, setUser } = useAppContext();
+  const { selectedChat, setSelectedChat, theme, user, axios, token, setUser, createNewChat } = useAppContext();
 
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -62,9 +61,22 @@ const Chatbox = () => {
     setMessages(prev => [...prev, userMessage]);
 
     try {
+      let chatId = selectedChat?._id;
+
+      // ✅ If no chat exists yet, create one automatically
+      if (!chatId) {
+        const newChat = await createNewChat();
+        if (!newChat || !newChat._id) {
+          throw new Error("Failed to create a new chat");
+        }
+        chatId = newChat._id;
+        setSelectedChat(newChat);
+      }
+
+      // ✅ Send message to the backend
       const { data } = await axios.post(
         `/api/message/text`,
-        { chatId: selectedChat._id, prompt: text },
+        { chatId, prompt: text },
         { headers: { Authorization: token } }
       );
 
@@ -76,6 +88,7 @@ const Chatbox = () => {
         toast.error(data.message);
       }
     } catch (error) {
+      console.error(error);
       toast.error(error.message || "Something went wrong");
     } finally {
       setLoading(false);
