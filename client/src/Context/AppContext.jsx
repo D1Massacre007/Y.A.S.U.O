@@ -23,12 +23,10 @@ export const AppContextProvider = ({ children }) => {
       setLoadingUser(false);
       return;
     }
-
     try {
       const { data } = await axios.get("/api/user/data", {
         headers: { Authorization: token },
       });
-
       if (data.success) {
         setUser(data.user);
       } else {
@@ -46,19 +44,13 @@ export const AppContextProvider = ({ children }) => {
   // ✅ Fetch user's chats (only after user is loaded)
   const fetchUserChats = async () => {
     if (!token || !user) return;
-
     try {
       const { data } = await axios.get("/api/chat/get", {
         headers: { Authorization: token },
       });
-
       if (data.success) {
         setChats(data.chats);
-        if (data.chats.length > 0) {
-          setSelectedChat(data.chats[0]);
-        } else {
-          setSelectedChat(null);
-        }
+        setSelectedChat(data.chats.length > 0 ? data.chats[0] : null);
       } else {
         toast.error(data.message);
       }
@@ -73,12 +65,10 @@ export const AppContextProvider = ({ children }) => {
       toast.error("Please login first.");
       return null;
     }
-
     try {
       const { data } = await axios.get("/api/chat/create", {
         headers: { Authorization: token },
       });
-
       if (data.success && data.chat) {
         const newChat = data.chat;
         setChats((prev) => [newChat, ...prev]);
@@ -112,16 +102,12 @@ export const AppContextProvider = ({ children }) => {
 
   // ✅ Watch for token change (login/logout)
   useEffect(() => {
-    // When token changes, reset chats immediately to prevent showing old data
     setChats([]);
     setSelectedChat(null);
     setUser(null);
 
-    if (token) {
-      fetchUser();
-    } else {
-      setLoadingUser(false);
-    }
+    if (token) fetchUser();
+    else setLoadingUser(false);
   }, [token]);
 
   // ✅ Once user is loaded, fetch their chats

@@ -24,7 +24,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
   const logout = () => {
     localStorage.removeItem("token");
     setToken(null);
-    toast.success("Logged out successfully");
+    
   };
 
   const deleteChat = async (e, chatId) => {
@@ -32,7 +32,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this chat?");
     if (!confirmDelete) return;
 
-    const toastId = toast.loading("Deleting...");
+    
     try {
       const { data } = await axios.post(
         "/api/chat/delete",
@@ -42,7 +42,6 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
       if (data.success) {
         setChats((prev) => prev.filter((chat) => chat._id !== chatId));
         await fetchUserChats();
-        toast.success(data.message);
       }
     } catch (error) {
       toast.error(error.response?.data?.message || error.message);
@@ -107,9 +106,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
         setChats((prev) => [data.chat, ...prev]); // add new chat to top
         setSelectedChat(data.chat); // select new chat immediately
         navigate("/");
-      } else {
-        toast.error(data.message);
-      }
+      } 
     } catch (error) {
       toast.error(error.message);
     } finally {
@@ -232,7 +229,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
         <div className="flex flex-col text-sm">
           <p>Credits : {user?.credits ?? dummyUserData.credits}</p>
           <p className="text-xs text-gray-400">
-            Purchase credits to use quickgpt
+            Purchase credits to know more
           </p>
         </div>
       </div>

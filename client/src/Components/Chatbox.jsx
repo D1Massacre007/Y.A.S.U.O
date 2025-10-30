@@ -5,6 +5,13 @@ import Message from './Message';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from "framer-motion";
 
+import githubLight from "../assets/github.png";
+import githubDark from "../assets/github_dark.png";
+import leetcodeLight from "../assets/Leetcode.png";
+import leetcodeDark from "../assets/leetcode_dark.png";
+import linkedinLight from "../assets/linkedin.png";
+import linkedinDark from "../assets/linkedin_white.png";
+
 const suggestions = [
   "Who is Annaz?",
   "Projects he worked on?",
@@ -210,11 +217,15 @@ const Chatbox = () => {
         )}
       </div>
 
-      {/* --- Need a hint Dropdown (separate from input) --- */}
+      {/* Suggestions */}
       <div className="w-full flex flex-col items-center mb-2 relative z-10">
         <button
           onClick={() => setShowSuggestions(prev => !prev)}
-          className="flex items-center gap-2 text-gray-800 dark:text-gray-400 font-semibold hover:text-purple-500 transition"
+          className={`flex items-center gap-2 transition ${
+      theme === "dark"
+        ? "text-gray-800 dark:text-gray-400 font-semibold hover:text-purple-300"
+        : "text-gray-900 font-normal dark:text-gray-900 hover:font-semibold hover:text-gray-900"
+    }`}
         >
           Need a hint ?
           <motion.span
@@ -253,14 +264,14 @@ const Chatbox = () => {
         </AnimatePresence>
       </div>
 
-      {/* --- Input Form --- */}
+      {/* Input Form with GitHub + LeetCode + LinkedIn */}
       <form
         onSubmit={onSubmit}
-        className={`relative w-full flex items-center gap-4 p-3 pl-4
+        className={`relative w-full flex items-center gap-5 p-3 pl-4
           border rounded-full transition-[border-color,background-color,box-shadow] duration-300
           ${isFocused
             ? theme === 'dark'
-              ? 'bg-[radial-gradient(ellipse_at_top_left,_rgba(255,255,255,0.15),_transparent),radial-gradient(ellipse_at_bottom_right,_rgba(255,255,255,0.1),_transparent)] backdrop-blur-xl border border-purple-500/50 shadow-[0_0_15px_2px_rgba(168,85,247,0.4)]'
+              ? 'bg-[radial-gradient(ellipse_at_top_left,_rgba(255,255,255,0.15),_transparent),radial-gradient(ellipse_at_bottom_right,_rgba(255,255,255,0.1),_transparent)] backdrop-blur-xl border border-purple-500/50 shadow-[0_0_15px_2px_rgba(168,85,247,0.6)]'
               : 'bg-white/90 backdrop-blur-sm border border-gray-300 shadow-md'
             : theme === 'dark'
               ? 'bg-[radial-gradient(ellipse_at_top_left,_rgba(255,255,255,0.05),_transparent),radial-gradient(ellipse_at_bottom_right,_rgba(255,255,255,0.03),_transparent)] backdrop-blur-lg border border-white/10'
@@ -268,6 +279,48 @@ const Chatbox = () => {
           }
         `}
       >
+        {/* GitHub + LeetCode + LinkedIn Icons with hover glows */}
+        <div className="flex items-center gap-3 ml-2">
+          <a
+            href="https://github.com/D1Massacre007"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-transform hover:scale-110"
+          >
+            <img
+              src={theme === 'dark' ? githubDark : githubLight}
+              alt="GitHub"
+              className="w-6 sm:w-8 h-auto object-contain opacity-80 hover:opacity-100 hover:drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]"
+            />
+          </a>
+
+          <a
+            href="https://leetcode.com/u/D1Massacre/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-transform hover:scale-110"
+          >
+            <img
+              src={theme === 'dark' ? leetcodeDark : leetcodeLight}
+              alt="LeetCode"
+              className="w-6 sm:w-6 h-auto object-contain opacity-80 hover:opacity-500 hover:drop-shadow-[0_0_8px_rgba(255,148,0,0.8)]"
+            />
+          </a>
+
+          <a
+            href="https://www.linkedin.com/in/annaz-mus-sakib-074443247/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-transform hover:scale-110"
+          >
+            <img
+              src={theme === 'dark' ? linkedinDark : linkedinLight}
+              alt="LinkedIn"
+              className="w-6 sm:w-7 h-auto object-contain opacity-80 hover:opacity-100 hover:drop-shadow-[0_0_8px_rgba(0,119,181,0.8)]"
+            />
+          </a>
+        </div>
+
         <input
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
@@ -278,6 +331,7 @@ const Chatbox = () => {
           className="flex-1 text-sm sm:text-base outline-none bg-transparent text-gray-800 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
           required
         />
+
         <motion.button
           type="submit"
           disabled={loading}

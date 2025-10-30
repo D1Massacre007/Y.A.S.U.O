@@ -41,7 +41,7 @@ const App = () => {
         <div
           className={`relative h-screen w-screen flex transition-colors duration-500 ${
             theme === "dark"
-              ? "bg-gradient-to-br from-[#4a0ca3] via-[#2a1025] to-[#050009] text-white"
+              ? "bg-gradient-to-br from-[#6a0ca3] via-[#2a1025] to-[#050009] text-white"
               : "bg-gradient-to-b from-[#f5f5f5] to-[#e0e0e0] text-black"
           }`}
         >
