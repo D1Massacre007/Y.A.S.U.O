@@ -32,22 +32,38 @@ const Chatbox = () => {
 
   const renderedMessageIds = useRef(new Set());
 
+  // Update messages when selectedChat changes
   useEffect(() => {
     if (selectedChat && Array.isArray(selectedChat.messages)) {
       setMessages(selectedChat.messages);
       renderedMessageIds.current = new Set(selectedChat.messages.map(m => m._id ?? m.timestamp));
+      
+      // Scroll to bottom when switching to a chat
+      setTimeout(() => {
+        if (containerRef.current) {
+          containerRef.current.scrollTo({
+            top: containerRef.current.scrollHeight,
+            behavior: "smooth",
+          });
+        }
+      }, 50);
     } else {
       setMessages([]);
       renderedMessageIds.current.clear();
     }
   }, [selectedChat]);
 
+  // Scroll when new messages are added, but only if user is near bottom
   useEffect(() => {
     if (containerRef.current) {
-      containerRef.current.scrollTo({
-        top: containerRef.current.scrollHeight,
-        behavior: "smooth",
-      });
+      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+      const isNearBottom = scrollHeight - (scrollTop + clientHeight) < 100; // 100px tolerance
+      if (isNearBottom) {
+        containerRef.current.scrollTo({
+          top: containerRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      }
     }
   }, [messages]);
 
@@ -136,10 +152,14 @@ const Chatbox = () => {
             );
 
             if (containerRef.current) {
-              containerRef.current.scrollTo({
-                top: containerRef.current.scrollHeight,
-                behavior: 'smooth',
-              });
+              const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+              const isNearBottom = scrollHeight - (scrollTop + clientHeight) < 100;
+              if (isNearBottom) {
+                containerRef.current.scrollTo({
+                  top: containerRef.current.scrollHeight,
+                  behavior: 'smooth',
+                });
+              }
             }
 
             const currentChar = fullReplyContent[index - 1];
@@ -176,7 +196,7 @@ const Chatbox = () => {
     <div className="flex-1 flex flex-col justify-between m-5 md:m-10 xl:mx-30 max-md:mt-14 2xl:pr-10">
 
       {/* Chat messages */}
-      <div ref={containerRef} className="flex-1 mb-5 overflow-y-scroll relative">
+      <div ref={containerRef} className="mb-5 overflow-y-auto relative">
         <AnimatePresence>
           {messages.length === 0 && !loading && (
             <motion.div
