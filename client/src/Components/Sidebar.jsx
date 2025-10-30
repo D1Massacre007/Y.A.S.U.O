@@ -97,26 +97,25 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
   };
 
   const handleCreateChat = async () => {
-  if (creatingChat) return;
-  setCreatingChat(true);
-  try {
-    const { data } = await axios.get("/api/chat/create", {
-      headers: { Authorization: token },
-    });
-    if (data.success) {
-      setChats((prev) => [data.chat, ...prev]); // add new chat to top
-      setSelectedChat(data.chat); // select new chat immediately
-      navigate("/");
-    } else {
-      toast.error(data.message);
+    if (creatingChat) return;
+    setCreatingChat(true);
+    try {
+      const { data } = await axios.get("/api/chat/create", {
+        headers: { Authorization: token },
+      });
+      if (data.success) {
+        setChats((prev) => [data.chat, ...prev]); // add new chat to top
+        setSelectedChat(data.chat); // select new chat immediately
+        navigate("/");
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setCreatingChat(false);
     }
-  } catch (error) {
-    toast.error(error.message);
-  } finally {
-    setCreatingChat(false);
-  }
-};
-
+  };
 
   return (
     <div
@@ -127,18 +126,34 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
       absolute left-0 top-0 z-20 md:relative md:translate-x-0
       ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
-      {/* Logo */}
-      <img
-        src={theme === "dark" ? logo_full_1_1 : assets.logo_full_dark}
-        className="w-full max-w-48"
-        alt="Logo"
-      />
+    
+
+{/* Logo + Beta */}
+<div className="flex items-center gap-3 w-full mb-5 relative">
+  <img
+    src={theme === "dark" ? logo_full_1_1 : assets.logo_full_dark}
+    className="h-12" // logo bigger
+    alt="Logo"
+  />
+
+  {/* Beta Badge */}
+  <span
+    className="px-3 py-0.5 text-[9px] font-bold text-white bg-gradient-to-r from-purple-700 to-pink-500/70 
+               backdrop-blur-sm rounded-full uppercase tracking-wider shadow-md -ml-4"
+    title="Beta Version"
+  >
+    Beta
+  </span>
+</div>
+
+
+
 
       {/* New Chat Button */}
       <button
         onClick={handleCreateChat}
         disabled={creatingChat}
-        className={`flex justify-center items-center w-full py-2 mt-10 
+        className={`flex justify-center items-center w-full py-2 mt-2 
         text-white bg-gradient-to-r from-[#A456F7] to-[#3D81F6] 
         text-sm rounded-md cursor-pointer hover:opacity-90 transition-all ${
           creatingChat ? "opacity-60 cursor-not-allowed" : ""

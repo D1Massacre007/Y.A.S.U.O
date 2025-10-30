@@ -19,49 +19,66 @@ export const AppContextProvider = ({ children }) => {
 
   // ✅ Fetch logged-in user info
   const fetchUser = async () => {
-    if (!token) return setLoadingUser(false);
+    if (!token) {
+      setLoadingUser(false);
+      return;
+    }
 
     try {
       const { data } = await axios.get("/api/user/data", {
         headers: { Authorization: token },
       });
-      if (data.success) setUser(data.user);
-      else toast.error(data.message);
+
+      if (data.success) {
+        setUser(data.user);
+      } else {
+        toast.error(data.message);
+        handleLogout();
+      }
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to load user data");
-      localStorage.removeItem("token");
-      setToken(null);
-      setUser(null);
+      handleLogout();
     } finally {
       setLoadingUser(false);
     }
   };
 
-  // ✅ Fetch user's chats
+  // ✅ Fetch user's chats (only after user is loaded)
   const fetchUserChats = async () => {
-    if (!token) return;
+    if (!token || !user) return;
+
     try {
       const { data } = await axios.get("/api/chat/get", {
         headers: { Authorization: token },
       });
+
       if (data.success) {
         setChats(data.chats);
-        if (data.chats.length > 0 && !selectedChat) {
+        if (data.chats.length > 0) {
           setSelectedChat(data.chats[0]);
+        } else {
+          setSelectedChat(null);
         }
-      } else toast.error(data.message);
+      } else {
+        toast.error(data.message);
+      }
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.message || "Failed to load chats");
     }
   };
 
-  // ✅ Create new chat (only called from Chatbox when typing)
+  // ✅ Create new chat when typing first message
   const createNewChat = async () => {
-    if (!user) return toast("Login to create a new chat");
+    if (!user) {
+      toast.error("Please login first.");
+      return null;
+    }
+
     try {
       const { data } = await axios.get("/api/chat/create", {
         headers: { Authorization: token },
       });
+
       if (data.success && data.chat) {
         const newChat = data.chat;
         setChats((prev) => [newChat, ...prev]);
@@ -69,29 +86,45 @@ export const AppContextProvider = ({ children }) => {
         return newChat;
       } else {
         toast.error(data.message || "Failed to create chat");
+        return null;
       }
     } catch (err) {
       toast.error(err.response?.data?.message || err.message);
+      return null;
     }
   };
 
-  // ✅ Apply theme
+  // ✅ Logout handler — clears everything
+  const handleLogout = () => {
+    setUser(null);
+    setChats([]);
+    setSelectedChat(null);
+    setToken(null);
+    localStorage.removeItem("token");
+  };
+
+  // ✅ Theme setup
   useEffect(() => {
     if (theme === "dark") document.documentElement.classList.add("dark");
     else document.documentElement.classList.remove("dark");
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  // ✅ Load user when token changes
+  // ✅ Watch for token change (login/logout)
   useEffect(() => {
-    if (token) fetchUser();
-    else {
-      setUser(null);
+    // When token changes, reset chats immediately to prevent showing old data
+    setChats([]);
+    setSelectedChat(null);
+    setUser(null);
+
+    if (token) {
+      fetchUser();
+    } else {
       setLoadingUser(false);
     }
   }, [token]);
 
-  // ✅ Load chats after user is fetched
+  // ✅ Once user is loaded, fetch their chats
   useEffect(() => {
     if (user) fetchUserChats();
   }, [user]);
@@ -109,9 +142,9 @@ export const AppContextProvider = ({ children }) => {
         setTheme,
         navigate,
         createNewChat,
-        loadingUser,
-        setLoadingUser,
         fetchUserChats,
+        handleLogout,
+        loadingUser,
         token,
         setToken,
         axios,
