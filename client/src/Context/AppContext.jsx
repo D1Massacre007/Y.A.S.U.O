@@ -39,17 +39,24 @@ export const AppContextProvider = ({ children }) => {
   };
 
   // Fetch chats of logged-in user
-  const fetchUserChats = async () => {
+  const fetchUserChats = async (isNewAccount = false) => {
     if (!token) return;
     try {
       const { data } = await axios.get("/api/chat/get", {
         headers: { Authorization: token },
       });
+
       if (data.success) {
         setChats(data.chats);
-        setSelectedChat(
-          (prev) => prev || (data.chats.length > 0 ? data.chats[0] : null)
-        );
+
+        if (isNewAccount) {
+          // Force no old chat selected for new account
+          setSelectedChat(null);
+        } else {
+          setSelectedChat(
+            (prev) => prev || (data.chats.length > 0 ? data.chats[0] : null)
+          );
+        }
       } else {
         toast.error(data.message);
       }
@@ -58,7 +65,7 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // ✅ Create new chat (called only once after login)
+  // Create new chat
   const createNewChat = async () => {
     if (!user) return toast("Login to create a new chat");
     try {
@@ -66,27 +73,31 @@ export const AppContextProvider = ({ children }) => {
         headers: { Authorization: token },
       });
       if (data.success) {
-        await fetchUserChats();
-        toast.success("New chat created!");
+        await fetchUserChats(true); // fetch chats, mark as new account
+        
       }
       navigate("/");
+      return data.chat;
     } catch (err) {
       toast.error(err.response?.data?.message || err.message);
     }
   };
 
-  // 🌟 Run this only the first time a user logs in (not on refresh)
+  // Handle login / registration
   const handleLogin = async (loginData) => {
     try {
-      // loginData should contain token + user info from backend
       setToken(loginData.token);
       localStorage.setItem("token", loginData.token);
       setUser(loginData.user);
 
-      // ✅ Create chat immediately after successful login
-      setTimeout(async () => {
-        await createNewChat();
-      }, 300);
+      // Clear old chat immediately
+      setSelectedChat(null);
+
+      // Fetch chats as new account
+      await fetchUserChats(true);
+
+      // Create new chat immediately
+      await createNewChat();
 
       toast.success("Login successful!");
     } catch (error) {
@@ -110,7 +121,7 @@ export const AppContextProvider = ({ children }) => {
     }
   }, [token]);
 
-  // 🌟 Only fetch chats when user exists (no auto create)
+  // Only fetch chats when user exists
   useEffect(() => {
     if (user) fetchUserChats();
   }, [user]);
@@ -128,7 +139,7 @@ export const AppContextProvider = ({ children }) => {
         setTheme,
         navigate,
         createNewChat,
-        handleLogin, // 🌟 new function for login
+        handleLogin,
         loadingUser,
         setLoadingUser,
         fetchUserChats,

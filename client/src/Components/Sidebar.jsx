@@ -3,7 +3,7 @@ import { useAppContext } from "../Context/AppContext";
 import { assets, dummyUserData } from "../assets/assets";
 import moment from "moment";
 import logo_full_1_1 from "../assets/logo_full_1_1.png";
-import toast from "react-hot-toast";
+import logoutIcon from "../assets/icons8-logout-64.png";
 
 const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
   const {
@@ -24,15 +24,15 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
   const logout = () => {
     localStorage.removeItem("token");
     setToken(null);
-    
   };
 
   const deleteChat = async (e, chatId) => {
     e.stopPropagation();
-    const confirmDelete = window.confirm("Are you sure you want to delete this chat?");
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this chat?"
+    );
     if (!confirmDelete) return;
 
-    
     try {
       const { data } = await axios.post(
         "/api/chat/delete",
@@ -40,13 +40,12 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
         { headers: { Authorization: token } }
       );
       if (data.success) {
+        setSelectedChat((prev) => (prev?._id === chatId ? null : prev));
         setChats((prev) => prev.filter((chat) => chat._id !== chatId));
         await fetchUserChats();
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || error.message);
-    } finally {
-      toast.dismiss(toastId);
+      console.error(error.response?.data?.message || error.message);
     }
   };
 
@@ -91,7 +90,11 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
   const handleStatusClick = () => {
     setManual(true);
     setStatus((prev) =>
-      prev === "online" ? "idle" : prev === "idle" ? "Do Not Disturb" : "online"
+      prev === "online"
+        ? "idle"
+        : prev === "idle"
+        ? "Do Not Disturb"
+        : "online"
     );
   };
 
@@ -103,12 +106,13 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
         headers: { Authorization: token },
       });
       if (data.success) {
-        setChats((prev) => [data.chat, ...prev]); // add new chat to top
-        setSelectedChat(data.chat); // select new chat immediately
+        setChats((prev) => [data.chat, ...prev]);
+        setSelectedChat(data.chat);
         navigate("/");
-      } 
+        // ✅ No toast here
+      }
     } catch (error) {
-      toast.error(error.message);
+      console.error(error.message);
     } finally {
       setCreatingChat(false);
     }
@@ -116,35 +120,28 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
 
   return (
     <div
-      className={`flex flex-col h-screen min-w-72 p-5 
-      dark:bg-gradient-to-b from-[#212124]/90 to-[#10000]/30 
-      border-r border-[#60609F]/90 backdrop-blue-5xl 
-      transition-transform duration-500 ease-in-out
-      absolute left-0 top-0 z-20 md:relative md:translate-x-0
-      ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
+      className={`flex flex-col h-screen min-w-72 p-4
+        bg-white/30 dark:bg-black/20 backdrop-blur-md
+        border-r border-[#60609F]/30
+        transition-transform duration-500 ease-in-out
+        absolute left-0 top-0 z-20 md:relative md:translate-x-0
+        ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
-    
-
-{/* Logo + Beta */}
-<div className="flex items-center gap-3 w-full mb-5 relative">
-  <img
-    src={theme === "dark" ? logo_full_1_1 : assets.logo_full_dark}
-    className="h-12" // logo bigger
-    alt="Logo"
-  />
-
-  {/* Beta Badge */}
-  <span
-    className="px-3 py-0.5 text-[9px] font-bold text-white bg-gradient-to-r from-purple-700 to-pink-500/70 
-               backdrop-blur-sm rounded-full uppercase tracking-wider shadow-md -ml-4"
-    title="Beta Version"
-  >
-    Beta
-  </span>
-</div>
-
-
-
+      {/* Logo + Beta */}
+      <div className="flex items-center gap-3 w-full mb-5 relative">
+        <img
+          src={theme === "dark" ? logo_full_1_1 : assets.logo_full_dark}
+          className="h-12"
+          alt="Logo"
+        />
+        <span
+          className="px-3 py-0.5 text-[9px] font-bold text-white bg-gradient-to-r from-purple-700 to-pink-500/70 
+                     backdrop-blur-sm rounded-full uppercase tracking-wider shadow-md -ml-8"
+          title="Beta Version"
+        >
+          Beta
+        </span>
+      </div>
 
       {/* New Chat Button */}
       <button
@@ -193,7 +190,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
               }}
               className="p-2 px-4 dark:bg-[#57317C]/10 border border-gray-300 
               dark:border-[#80609F]/15 rounded-md cursor-pointer 
-              flex justify-between group hover:bg-gray-100 dark:hover:bg-[#57317C]/20 transition-all"
+              flex justify-between items-center hover:bg-gray-100 dark:hover:bg-[#57317C]/20 transition-all"
             >
               <div>
                 <p className="truncate w-full">
@@ -207,7 +204,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
               </div>
               <img
                 src={assets.bin_icon}
-                className="hidden group-hover:block w-4 cursor-pointer not-dark:invert"
+                className="w-4 cursor-pointer not-dark:invert"
                 alt="Delete"
                 onClick={(e) => deleteChat(e, chat._id)}
               />
@@ -215,7 +212,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
           ))}
       </div>
 
-      {/* 💎 Credit Purchases Option */}
+      {/* 💎 Credits */}
       <div
         onClick={() => navigate("/credits")}
         className="flex items-center gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 
@@ -228,9 +225,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
         />
         <div className="flex flex-col text-sm">
           <p>Credits : {user?.credits ?? dummyUserData.credits}</p>
-          <p className="text-xs text-gray-400">
-            Purchase credits to know more
-          </p>
+          <p className="text-xs text-gray-400">Purchase credits to know more</p>
         </div>
       </div>
 
@@ -255,7 +250,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
 
       {/* User Section */}
       <div
-        className="relative flex items-center gap-3 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer group"
+        className="relative flex items-center gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer group"
       >
         <div className="relative">
           <img src={assets.user_icon} className="w-9 rounded-full" alt="User" />
@@ -276,8 +271,8 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
         {user && (
           <img
             onClick={logout}
-            src={assets.logout_icon}
-            className="h-5 cursor-pointer hidden not-dark:invert group-hover:block"
+            src={logoutIcon}
+            className="h-5 cursor-pointer not-dark:invert"
             alt="Logout"
           />
         )}

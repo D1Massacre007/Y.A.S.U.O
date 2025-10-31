@@ -1,7 +1,6 @@
 import Chat from "../models/Chat.js";
 
 // API Controller for creating a new chat
-// chatController.js
 export const createChat = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -14,15 +13,13 @@ export const createChat = async (req, res) => {
     };
 
     const newChat = await Chat.create(chatData);
-    res.json({ success: true, message: "Chat created", chat: newChat });
+    // ✅ Remove 'message' to prevent accidental toasts
+    res.json({ success: true, chat: newChat });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
 };
 
-
-
-// API Controller for fetching all chats
 // API Controller for fetching all chats
 export const getChats = async (req, res) => {
   try {
@@ -34,14 +31,13 @@ export const getChats = async (req, res) => {
   }
 };
 
-
 // API Controller for deleting a chat
 export const deleteChat = async (req, res) => {
   try {
     const userId = req.user._id;
     const { chatId } = req.body;
     await Chat.findOneAndDelete({ _id: chatId, userId });
-    res.json({ success: true, message: "Chat Deleted" });
+    res.json({ success: true }); // ✅ remove message here too if you want
   } catch (error) {
     res.json({ success: false, message: error.message });
   }

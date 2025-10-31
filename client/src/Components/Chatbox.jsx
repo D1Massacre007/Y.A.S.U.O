@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import { useAppContext } from "../Context/AppContext";
 import { assets } from "../assets/assets";
-import Message from './Message';
-import toast from 'react-hot-toast';
+import Message from "./Message";
+import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
 import githubLight from "../assets/github.png";
@@ -17,99 +17,138 @@ const suggestions = [
   "Projects he worked on?",
   "What is his schedule?",
   "Describe his Work Experience",
-  "What is his educational background?"
+  "What is his educational background?",
 ];
+
+const smoothTransition = { type: "spring", stiffness: 100, damping: 20, mass: 0.8 }; // buttery spring
 
 const Chatbox = () => {
   const containerRef = useRef(null);
-  const { selectedChat, setSelectedChat, theme, user, axios, token, setUser, createNewChat } = useAppContext();
+  const {
+    selectedChat,
+    setSelectedChat,
+    theme,
+    user,
+    axios,
+    token,
+    setUser,
+    createNewChat,
+  } = useAppContext();
 
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [prompt, setPrompt] = useState('');
+  const [prompt, setPrompt] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const renderedMessageIds = useRef(new Set());
+  const userScrolling = useRef(false);
+  const scrollTimeout = useRef(null);
 
-  // Update messages when selectedChat changes
   useEffect(() => {
-    if (selectedChat && Array.isArray(selectedChat.messages)) {
-      setMessages(selectedChat.messages);
-      renderedMessageIds.current = new Set(selectedChat.messages.map(m => m._id ?? m.timestamp));
-      
-      // Scroll to bottom when switching to a chat
-      setTimeout(() => {
-        if (containerRef.current) {
-          containerRef.current.scrollTo({
-            top: containerRef.current.scrollHeight,
-            behavior: "smooth",
-          });
-        }
-      }, 50);
-    } else {
+    renderedMessageIds.current.clear();
+    setSelectedChat(null);
+    setMessages([]);
+  }, [user?._id]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const handleScroll = () => {
+      userScrolling.current = true;
+      clearTimeout(scrollTimeout.current);
+      scrollTimeout.current = setTimeout(() => {
+        userScrolling.current = false;
+      }, 800);
+    };
+
+    el.addEventListener("scroll", handleScroll);
+    return () => {
+      el.removeEventListener("scroll", handleScroll);
+      clearTimeout(scrollTimeout.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!selectedChat) {
       setMessages([]);
       renderedMessageIds.current.clear();
+      return;
     }
-  }, [selectedChat]);
 
-  // Scroll when new messages are added, but only if user is near bottom
-  useEffect(() => {
-    if (containerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-      const isNearBottom = scrollHeight - (scrollTop + clientHeight) < 100; // 100px tolerance
-      if (isNearBottom) {
-        containerRef.current.scrollTo({
+    if (selectedChat.userId === user?._id && selectedChat?.messages) {
+      const uniqueMessages = Array.from(
+        new Map(selectedChat.messages.map((m) => [m._id ?? m.timestamp, m])).values()
+      );
+      setMessages(uniqueMessages);
+      renderedMessageIds.current = new Set(
+        uniqueMessages.map((m) => m._id ?? m.timestamp)
+      );
+
+      setTimeout(() => {
+        containerRef.current?.scrollTo({
           top: containerRef.current.scrollHeight,
           behavior: "smooth",
         });
-      }
+      }, 100);
     }
-  }, [messages]);
+  }, [selectedChat, user?._id]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const isAtBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
+    if (!userScrolling.current && isAtBottom) {
+      el.scrollTo({
+        top: el.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [messages.length]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!user) return toast('Login to send message');
+    if (!user) return toast("Login to send message");
     if (!prompt.trim()) return;
-
     await sendMessage(prompt.trim());
-    setPrompt('');
+    setPrompt("");
   };
 
   const sendMessage = async (text) => {
     setLoading(true);
 
     const userMessage = {
-      role: 'user',
+      role: "user",
       content: text,
       timestamp: Date.now(),
-      isImage: false
+      isImage: false,
     };
 
-    let chatId = selectedChat?._id;
-
     try {
+      let chatId = selectedChat?._id;
+
       if (!chatId) {
         const newChat = await createNewChat();
-        if (!newChat || !newChat._id) throw new Error("Failed to create a new chat");
+        if (!newChat?._id) throw new Error("Failed to create a new chat");
 
         chatId = newChat._id;
         setSelectedChat(newChat);
         setMessages([]);
         renderedMessageIds.current.clear();
-        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-
-        setMessages([userMessage]);
-        renderedMessageIds.current.add(userMessage.timestamp);
-        setSelectedChat(prevChat => prevChat ? { ...prevChat, messages: [userMessage] } : prevChat);
-      } else {
-        setMessages(prev => {
-          const next = [...prev, userMessage];
-          renderedMessageIds.current.add(userMessage.timestamp);
-          setSelectedChat(prevChat => prevChat ? { ...prevChat, messages: next } : prevChat);
-          return next;
-        });
       }
+
+      setMessages((prev) => {
+        if (prev.some((m) => (m._id ?? m.timestamp) === userMessage.timestamp))
+          return prev;
+        const next = [...prev, userMessage];
+        renderedMessageIds.current.add(userMessage.timestamp);
+        setSelectedChat((prevChat) =>
+          prevChat ? { ...prevChat, messages: next } : prevChat
+        );
+        return next;
+      });
 
       const { data } = await axios.post(
         `/api/message/text`,
@@ -118,63 +157,59 @@ const Chatbox = () => {
       );
 
       if (data?.success && data.reply) {
-        const fullReplyContent = data.reply.content ?? data.reply.text ?? "No response";
+        const fullReply = data.reply.content ?? data.reply.text ?? "No response";
         const replyMessage = {
-          role: 'assistant',
-          content: '',
-          _id: data.reply._id ?? undefined,
+          role: "assistant",
+          content: "",
+          _id: data.reply._id ?? `reply-${Date.now()}`,
           timestamp: Date.now(),
           isImage: !!data.reply.isImage,
         };
 
-        setMessages(prev => {
+        setMessages((prev) => {
+          if (prev.some((m) => m._id === replyMessage._id)) return prev;
           const next = [...prev, replyMessage];
-          renderedMessageIds.current.add(replyMessage._id ?? replyMessage.timestamp);
-          setSelectedChat(prevChat => prevChat ? { ...prevChat, messages: next } : prevChat);
+          renderedMessageIds.current.add(replyMessage._id);
+          setSelectedChat((prevChat) =>
+            prevChat ? { ...prevChat, messages: next } : prevChat
+          );
           return next;
         });
 
-        // ChatGPT-style typing effect
-        let index = 0;
-        let currentContent = '';
-
-        const typeReply = () => {
-          if (index < fullReplyContent.length) {
-            currentContent += fullReplyContent[index];
-            index++;
-
-            setMessages(prev =>
-              prev.map(m =>
-                m._id === replyMessage._id && m.role === 'assistant'
-                  ? { ...m, content: currentContent }
+        let i = 0;
+        const type = () => {
+          if (i < fullReply.length) {
+            i++;
+            setMessages((prev) =>
+              prev.map((m) =>
+                m._id === replyMessage._id
+                  ? { ...m, content: fullReply.slice(0, i) }
                   : m
               )
             );
 
-            if (containerRef.current) {
-              const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-              const isNearBottom = scrollHeight - (scrollTop + clientHeight) < 100;
-              if (isNearBottom) {
-                containerRef.current.scrollTo({
-                  top: containerRef.current.scrollHeight,
-                  behavior: 'smooth',
-                });
+            const el = containerRef.current;
+            if (el) {
+              const isAtBottom =
+                el.scrollHeight - el.scrollTop - el.clientHeight < 100;
+              if (!userScrolling.current && isAtBottom) {
+                el.scrollTo({ top: el.scrollHeight, behavior: "auto" });
               }
             }
 
-            const currentChar = fullReplyContent[index - 1];
             const delay =
-              currentChar === '.' || currentChar === ',' || currentChar === '?' || currentChar === '!'
-                ? 100 + Math.random() * 100
-                : 20 + Math.random() * 15;
-
-            setTimeout(typeReply, delay);
+              [".", ",", "?", "!"].includes(fullReply[i - 1])
+                ? 50 + Math.random() * 50
+                : 12 + Math.random() * 8;
+            setTimeout(type, delay);
           }
         };
+        type();
 
-        typeReply();
-
-        setUser(prev => ({ ...prev, credits: (prev?.credits ?? 0) - 1 }));
+        setUser((prev) => ({
+          ...prev,
+          credits: (prev?.credits ?? 0) - 1,
+        }));
       } else {
         toast.error(data?.message || "Failed to get reply from server");
       }
@@ -187,16 +222,15 @@ const Chatbox = () => {
   };
 
   const handleSuggestionClick = async (text) => {
-    if (!user) return toast('Login to send message');
+    if (!user) return toast("Login to send message");
     setShowSuggestions(false);
     await sendMessage(text);
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-between m-5 md:m-10 xl:mx-30 max-md:mt-14 2xl:pr-10">
-
+    <div className="flex-1 flex flex-col justify-between m-5 md:m-10 xl:mx-30 max-md:mt-14 2xl:pr-10 overflow-x-hidden">
       {/* Chat messages */}
-      <div ref={containerRef} className="mb-5 overflow-y-auto relative">
+      <div ref={containerRef} className="flex-1 mb-5 overflow-y-auto relative">
         <AnimatePresence>
           {messages.length === 0 && !loading && (
             <motion.div
@@ -204,14 +238,14 @@ const Chatbox = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 1.2, ease: "easeInOut" }}
+              transition={{ ...smoothTransition, duration: 1.5 }}
               className="absolute inset-0 flex items-center justify-center"
             >
               <motion.p
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 1.2, ease: "easeInOut" }}
+                transition={{ ...smoothTransition, duration: 1.2 }}
                 className="text-4xl sm:text-6xl text-center text-gray-700 dark:text-white"
               >
                 Ask me anything.
@@ -220,19 +254,25 @@ const Chatbox = () => {
           )}
         </AnimatePresence>
 
-        {messages.map((message) => (
+        {messages.map((message, i, arr) => (
           <Message
             key={message._id ?? message.timestamp}
             message={message}
-            animate={!renderedMessageIds.current.has(message._id ?? message.timestamp)}
+            isLast={i === arr.length - 1}
           />
         ))}
 
-        {loading && (
+        {loading && messages.length > 0 && (
           <div className="loader flex items-center gap-1.5 mt-2 ml-2">
             <div className="w-1.5 h-1.5 rounded-full bg-gray-600 dark:bg-white animate-bounce" />
-            <div className="w-1.5 h-1.5 rounded-full bg-gray-600 dark:bg-white animate-bounce" style={{ animationDelay: '0.12s' }} />
-            <div className="w-1.5 h-1.5 rounded-full bg-gray-600 dark:bg-white animate-bounce" style={{ animationDelay: '0.24s' }} />
+            <div
+              className="w-1.5 h-1.5 rounded-full bg-gray-600 dark:bg-white animate-bounce"
+              style={{ animationDelay: "0.12s" }}
+            />
+            <div
+              className="w-1.5 h-1.5 rounded-full bg-gray-600 dark:bg-white animate-bounce"
+              style={{ animationDelay: "0.24s" }}
+            />
           </div>
         )}
       </div>
@@ -240,17 +280,17 @@ const Chatbox = () => {
       {/* Suggestions */}
       <div className="w-full flex flex-col items-center mb-2 relative z-10">
         <button
-          onClick={() => setShowSuggestions(prev => !prev)}
-          className={`flex items-center gap-2 transition ${
-      theme === "dark"
-        ? "text-gray-800 dark:text-gray-400 font-semibold hover:text-purple-300"
-        : "text-gray-900 font-normal dark:text-gray-900 hover:font-semibold hover:text-gray-900"
-    }`}
+          onClick={() => setShowSuggestions((prev) => !prev)}
+          className={`flex items-center gap-2 transition-all duration-300 ${
+            theme === "dark"
+              ? "text-gray-800 dark:text-gray-400 font-semibold hover:text-purple-300"
+              : "text-gray-900 font-normal hover:font-semibold"
+          }`}
         >
           Need a hint ?
           <motion.span
             animate={{ rotate: showSuggestions ? 180 : 0 }}
-            transition={{ type: "spring", stiffness: 300 }}
+            transition={{ type: "spring", stiffness: 80, damping: 18 }}
             className="inline-block"
           >
             ▼
@@ -263,18 +303,18 @@ const Chatbox = () => {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.35, ease: "easeInOut" }}
-              className="flex overflow-x-auto gap-2 py-2 px-1 mt-2"
+              transition={{ ...smoothTransition, duration: 0.5 }}
+              className="flex overflow-x-auto overflow-y-hidden gap-2 py-2 px-1 mt-2 w-full max-w-full scrollbar-hide snap-x snap-mandatory"
             >
               {suggestions.map((s, idx) => (
                 <motion.button
                   key={idx}
                   onClick={() => handleSuggestionClick(s)}
-                  className="flex-shrink-0 px-4 py-2 bg-purple-950 hover:bg-purple-700 text-white rounded-full text-sm transition whitespace-nowrap"
+                  className="flex-shrink-0 snap-start px-4 py-2 bg-purple-950 hover:bg-purple-700 text-white rounded-full text-sm transition-all duration-300 whitespace-nowrap"
                   initial={{ opacity: 0, y: -10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  transition={{ duration: 0.25, type: "spring", stiffness: 300, damping: 20 }}
+                  transition={{ ...smoothTransition, duration: 0.4 }}
                 >
                   {s}
                 </motion.button>
@@ -284,22 +324,22 @@ const Chatbox = () => {
         </AnimatePresence>
       </div>
 
-      {/* Input Form with GitHub + LeetCode + LinkedIn */}
+      {/* Input Section */}
       <form
         onSubmit={onSubmit}
         className={`relative w-full flex items-center gap-5 p-3 pl-4
-          border rounded-full transition-[border-color,background-color,box-shadow] duration-300
-          ${isFocused
-            ? theme === 'dark'
-              ? 'bg-[radial-gradient(ellipse_at_top_left,_rgba(255,255,255,0.15),_transparent),radial-gradient(ellipse_at_bottom_right,_rgba(255,255,255,0.1),_transparent)] backdrop-blur-xl border border-purple-500/50 shadow-[0_0_15px_2px_rgba(168,85,247,0.6)]'
-              : 'bg-white/90 backdrop-blur-sm border border-gray-300 shadow-md'
-            : theme === 'dark'
-              ? 'bg-[radial-gradient(ellipse_at_top_left,_rgba(255,255,255,0.05),_transparent),radial-gradient(ellipse_at_bottom_right,_rgba(255,255,255,0.03),_transparent)] backdrop-blur-lg border border-white/10'
-              : 'bg-white/80 backdrop-blur-sm border border-gray-200'
-          }
-        `}
+          border rounded-full transition-[border-color,background-color,box-shadow] duration-500
+          ${
+            isFocused
+              ? theme === "dark"
+                ? "bg-[radial-gradient(ellipse_at_top_left,_rgba(255,255,255,0.1),_transparent),radial-gradient(ellipse_at_bottom_right,_rgba(255,255,255,0.05),_transparent)] backdrop-blur-lg border border-purple-400/40 shadow-[0_0_8px_1px_rgba(168,85,100,-1)]"
+                : "bg-white/20 backdrop-blur-lg border border-purple-200/30 shadow-[0_0_6px_1px_rgba(168,85,247,0.2)]"
+              : theme === "dark"
+              ? "bg-[radial-gradient(ellipse_at_top_left,_rgba(255,255,255,0.05),_transparent),radial-gradient(ellipse_at_bottom_right,_rgba(255,255,255,0.02),_transparent)] backdrop-blur-lg border border-white/10 shadow-[0_0_5px_1px_rgba(168,85,247,0.15)]"
+              : "bg-white/10 backdrop-blur-lg border border-gray-200/20 shadow-[0_0_4px_1px_rgba(168,85,247,0.1)]"
+          }`}
       >
-        {/* GitHub + LeetCode + LinkedIn Icons with hover glows */}
+        {/* Icons */}
         <div className="flex items-center gap-3 ml-2">
           <a
             href="https://github.com/D1Massacre007"
@@ -308,9 +348,9 @@ const Chatbox = () => {
             className="transition-transform hover:scale-110"
           >
             <img
-              src={theme === 'dark' ? githubDark : githubLight}
+              src={theme === "dark" ? githubDark : githubLight}
               alt="GitHub"
-              className="w-6 sm:w-8 h-auto object-contain opacity-80 hover:opacity-100 hover:drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]"
+              className="w-8 h-auto object-contain opacity-80 hover:opacity-100 hover:drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]"
             />
           </a>
 
@@ -321,9 +361,9 @@ const Chatbox = () => {
             className="transition-transform hover:scale-110"
           >
             <img
-              src={theme === 'dark' ? leetcodeDark : leetcodeLight}
+              src={theme === "dark" ? leetcodeDark : leetcodeLight}
               alt="LeetCode"
-              className="w-6 sm:w-6 h-auto object-contain opacity-80 hover:opacity-500 hover:drop-shadow-[0_0_8px_rgba(255,148,0,0.8)]"
+              className="w-6 h-auto object-contain opacity-80 hover:opacity-500 hover:drop-shadow-[0_0_8px_rgba(255,148,0,0.8)]"
             />
           </a>
 
@@ -334,13 +374,14 @@ const Chatbox = () => {
             className="transition-transform hover:scale-110"
           >
             <img
-              src={theme === 'dark' ? linkedinDark : linkedinLight}
+              src={theme === "dark" ? linkedinDark : linkedinLight}
               alt="LinkedIn"
               className="w-6 sm:w-7 h-auto object-contain opacity-80 hover:opacity-100 hover:drop-shadow-[0_0_8px_rgba(0,119,181,0.8)]"
             />
           </a>
         </div>
 
+        {/* Input */}
         <input
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
@@ -352,19 +393,21 @@ const Chatbox = () => {
           required
         />
 
+        {/* Send Button */}
         <motion.button
           type="submit"
           disabled={loading}
           whileHover={{ scale: 1.15, rotate: 10 }}
           whileTap={{ scale: 0.9 }}
           className="ml-auto relative rounded-full p-1"
+          transition={smoothTransition}
         >
           <motion.img
             src={loading ? assets.stop_icon : assets.send_icon}
             alt="Send"
             className="w-8 cursor-pointer"
             animate={loading ? { rotate: 360, opacity: 0.8 } : { rotate: 0, opacity: 1 }}
-            transition={loading ? { repeat: Infinity, duration: 1, ease: "linear" } : { duration: 0.3 }}
+            transition={loading ? { repeat: Infinity, duration: 1.5, ease: "linear" } : { duration: 0.5, ease: "easeOut" }}
           />
         </motion.button>
       </form>

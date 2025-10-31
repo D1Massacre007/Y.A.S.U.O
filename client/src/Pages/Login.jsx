@@ -23,7 +23,9 @@ const Login = () => {
       if (data.token) {
         localStorage.setItem("token", data.token);
         setToken(data.token);
-        toast.success(mode === "login" ? "Welcome back!" : "Account created!");
+        // ✅ Only show toast for login
+        if (mode === "login") toast.success("Welcome back!");
+        // Do NOT show any toast for account creation
       } else {
         toast.error(data.message || "Something went wrong.");
       }
