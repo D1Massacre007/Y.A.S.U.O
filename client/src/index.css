@@ -3,6 +3,33 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* -------------------------------------------
+   ✅ FIX FOR WHITE BACKGROUND SHOWING ON MOBILE PULL/KEYBOARD
+   ------------------------------------------- */
+
+/* 1. Default (Light Theme) Background */
+html, body {
+  /* Ensure the background is white by default in light mode */
+  background-color: white; 
+  /* Prevent horizontal scroll if chatbox is too wide */
+  overflow-x: hidden;
+  /* Ensure it takes full height of the viewport */
+  height: 100%;
+}
+
+/* 2. Dark Theme Background Override */
+/* When the .dark class is applied to the root element (html or body) */
+.dark {
+  /* Use the dark purple background color from your app's theme */
+  background-color: #1c0033 !important; /* Corresponds closely to bg-purple-950 */
+}
+
+/* Fallback for the html element if the .dark class is on the body */
+html.dark {
+  background-color: #1c0033 !important;
+}
+
+
 * {
   font-family: "Outfit", sans-serif;
 }
@@ -106,4 +133,3 @@ code[class*="language-"] {
 .token.variable {
   color: #e06c75;
 }
-
