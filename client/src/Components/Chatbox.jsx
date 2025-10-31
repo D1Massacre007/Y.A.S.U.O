@@ -228,7 +228,9 @@ const Chatbox = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-between m-5 md:m-10 xl:mx-30 max-md:mt-14 2xl:pr-10 overflow-x-hidden">
+    <div
+      className="flex-1 flex flex-col justify-between m-5 md:m-10 xl:mx-30 max-md:mt-14 2xl:pr-10 **w-full** **max-w-full** **overflow-y-hidden** **overflow-x-hidden**"
+    >
       {/* Chat messages */}
       <div ref={containerRef} className="flex-1 mb-5 overflow-y-auto relative">
         <AnimatePresence>
