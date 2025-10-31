@@ -229,7 +229,15 @@ const Chatbox = () => {
 
   return (
     <div
-      className="flex-1 flex flex-col justify-between m-5 md:m-10 xl:mx-30 max-md:mt-14 2xl:pr-10 **w-full** **max-w-full** **overflow-y-hidden** **overflow-x-hidden**"
+      // 🐛 FIXES for Mobile Layout and Overscroll/Keyboard Bounce 🐛
+      className={`flex-1 flex flex-col justify-between m-5 md:m-10 xl:mx-30 max-md:mt-14 2xl:pr-10
+        w-full max-w-full overflow-x-hidden **h-full** **overscroll-y-none**
+        ${
+          theme === "dark"
+            ? "**bg-purple-950**" // Ensure dark theme background is set to cover all space
+            : "**bg-white**"       // Ensure light theme background is set
+        }`
+      }
     >
       {/* Chat messages */}
       <div ref={containerRef} className="flex-1 mb-5 overflow-y-auto relative">
