@@ -21,8 +21,7 @@ const suggestions = [
   "What is his educational background?",
 ];
 
-// 🚀 OPTIMIZATION: Adjusted spring values for faster, smoother mobile performance.
-const smoothTransition = { type: "spring", stiffness: 80, damping: 18, mass: 0.8 }; 
+const smoothTransition = { type: "spring", stiffness: 100, damping: 20, mass: 0.8 }; // buttery spring
 
 const Chatbox = () => {
   const containerRef = useRef(null);
@@ -199,11 +198,10 @@ const Chatbox = () => {
               }
             }
 
-            // Small performance tweak for typing speed on mobile
             const delay =
               [".", ",", "?", "!"].includes(fullReply[i - 1])
                 ? 50 + Math.random() * 50
-                : 10 + Math.random() * 5; // Reduced typing delay slightly
+                : 12 + Math.random() * 8;
             setTimeout(type, delay);
           }
         };
@@ -232,11 +230,13 @@ const Chatbox = () => {
 
   return (
     <div
+      // 🐛 FIXES for Mobile Layout and Overscroll/Keyboard Bounce 🐛
       className={`flex-1 flex flex-col justify-between m-5 md:m-10 xl:mx-30 max-md:mt-14 2xl:pr-10
-        w-full max-w-full overflow-x-hidden **h-full** **overscroll-y-none** p-2 sm:p-5 **pb-20** ${ // **pb-20** ensures input/links are above the mobile home/keyboard bar
+        w-full max-w-full overflow-x-hidden **h-full** **overscroll-y-none**
+        ${
           theme === "dark"
-            ? "**bg-purple-950**"
-            : "**bg-white**" 
+            ? "**bg-purple-950**" // Ensure dark theme background is set to cover all space
+            : "**bg-white**"       // Ensure light theme background is set
         }`}
     >
       {/* Chat messages */}
@@ -269,11 +269,13 @@ const Chatbox = () => {
           let userAvatarSource = assets.ai_avatar;
           
           if (message.role === "user") {
+            // Check for remote URL from any provider
             const remotePic = user?.profilePic || user?.picture || user?.avatar_url;
             
             if (remotePic) {
-              userAvatarSource = remotePic; 
+              userAvatarSource = remotePic; // Use remote pic if available (OAuth/upload)
             } else {
+              // Use the local userIcon for traditional accounts with no external picture (Your requirement)
               userAvatarSource = userIcon; 
             }
           }
@@ -283,7 +285,7 @@ const Chatbox = () => {
               key={message._id ?? message.timestamp}
               message={message}
               isLast={i === arr.length - 1}
-              userAvatar={userAvatarSource} 
+              userAvatar={userAvatarSource} // Pass the determined source
             />
           );
         })}
@@ -330,7 +332,7 @@ const Chatbox = () => {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ ...smoothTransition, duration: 0.3 }} // Faster transition for suggestions
+              transition={{ ...smoothTransition, duration: 0.5 }}
               className="flex overflow-x-auto overflow-y-hidden gap-2 py-2 px-1 mt-2 w-full max-w-full scrollbar-hide snap-x snap-mandatory"
             >
               {suggestions.map((s, idx) => (
@@ -341,7 +343,7 @@ const Chatbox = () => {
                   initial={{ opacity: 0, y: -10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  transition={{ ...smoothTransition, duration: 0.3, delay: idx * 0.03 }} // Faster delay
+                  transition={{ ...smoothTransition, duration: 0.4 }}
                 >
                   {s}
                 </motion.button>

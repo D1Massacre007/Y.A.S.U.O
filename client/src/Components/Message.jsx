@@ -213,6 +213,6 @@ const Message = ({ message, isLast, userAvatar }) => {
       </motion.div>
     </AnimatePresence>
   );
-}
+};
 
 export default React.memo(Message);

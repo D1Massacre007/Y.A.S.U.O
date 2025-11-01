@@ -5,7 +5,7 @@ import { assets, dummyUserData } from "../assets/assets";
 import moment from "moment";
 import logo_full_1_1 from "../assets/logo_full_1_1.png";
 import logoutIcon from "../assets/icons8-logout-64.png";
-import userIcon from "../assets/user_icon.svg"; // <-- The asset path
+import userIcon from "../assets/user_icon.svg";
 
 // Helper to generate consistent color from a string
 function stringToColor(str) {
@@ -45,18 +45,17 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
   };
 
   // Avatar logic
-  useEffect(() => {
-    // 1. If no user, set to null (will show 'U' initial or be handled by the login state)
-    if (!user) return setAvatarUrl(null);
+  // Avatar logic with proper Google/GitHub support
+useEffect(() => {
+  if (!user) return setAvatarUrl(userIcon);
 
-    // 2. Get remote picture URL
-    let pic = user.profilePic?.trim() || user.picture?.trim() || user.avatar_url?.trim() || "";
+  let pic = user.profilePic?.trim() || user.picture?.trim() || user.avatar_url?.trim() || "";
 
-    if (pic.startsWith("//")) pic = "https:" + pic; // fix protocol
+  if (pic.startsWith("//")) pic = "https:" + pic; // fix protocol
 
-    // 3. Set Avatar URL: Use the remote URL, or fall back to the local userIcon.svg
-    setAvatarUrl(pic || userIcon);
-  }, [user]);
+  // Accept whatever Google/GitHub sends, fallback only on error
+  setAvatarUrl(pic || userIcon);
+}, [user]);
 
 
   // Delete chat
@@ -269,31 +268,19 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
       {/* 👤 User Section */}
       <div className="relative flex items-center gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer group">
         <div className="relative">
-          {/* RENDER LOGIC: Use the determined avatarUrl (remote or userIcon) */}
           {avatarUrl ? (
             <img
               src={avatarUrl}
               className="w-7 h-7 rounded-full object-cover"
               alt="User"
-              // Fallback to the initials if the remote URL *or* the local SVG fails.
-              onError={(e) => {
-                e.currentTarget.onerror = null; // Prevent loop
-                // To force the initial fallback, we remove the image element.
-                e.currentTarget.style.display = 'none'; 
-                e.currentTarget.parentElement.innerHTML = `
-                  <div class="w-7 h-7 rounded-full flex items-center justify-center text-white font-bold text-sm" 
-                       style="background-color: ${user?.name ? stringToColor(user.name) : '#888'};">
-                    ${user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                  </div>`;
-              }}
+              onError={(e) => (e.currentTarget.src = userIcon)}
             />
           ) : (
-            // If user is null (logged out) or a final fallback is needed: STABLE INITIALS
             <div
-              className="w-7 h-7 rounded-full flex items-center justify-center text-white font-bold text-sm"
+              className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm"
               style={{ backgroundColor: user?.name ? stringToColor(user.name) : "#888" }}
             >
-              {user ? user.name.charAt(0).toUpperCase() : "U"}
+              {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
             </div>
           )}
           <span
