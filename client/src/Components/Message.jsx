@@ -57,7 +57,7 @@ const useTypewriter = (text, speed = 18, enabled = true) => {
   return displayed;
 };
 
-const Message = ({ message, isLast }) => {
+const Message = ({ message, isLast, userAvatar }) => {
   const { theme } = useAppContext();
   const messageRef = useRef(null);
   const [highlighted, setHighlighted] = useState(false);
@@ -67,7 +67,6 @@ const Message = ({ message, isLast }) => {
     Date.now() - new Date(message.timestamp).getTime() < 5000;
 
   const typedContent = useTypewriter(message.content, 18, isNewMessage);
-
   const formattedTime = moment(message.timestamp).fromNow();
 
   /* Auto-scroll latest message */
@@ -193,23 +192,21 @@ const Message = ({ message, isLast }) => {
               <p className="text-sm leading-relaxed text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
                 {message.content}
               </p>
-              <p className="text-xs text-gray-500 mt-2 text-right">
-                {formattedTime}
-              </p>
+              <p className="text-xs text-gray-500 mt-2 text-right">{moment(message.timestamp).fromNow()}</p>
             </div>
             <img
-              src={assets.user_icon}
+              src={userAvatar || assets.default_avatar}
               alt="User"
-              className="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-700"
+              className="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-700 object-cover"
             />
           </div>
         ) : (
-          <div className="flex justify-start items-start gap-2">
+          <div className="flex justify-start items-start gap-0">
             <div className="max-w-2xl p-0 sm:p-0">
               <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
                 {typedContent}
               </Markdown>
-              <p className="text-xs text-gray-500 mt-2">{formattedTime}</p>
+              <p className="text-xs text-gray-500 mt-2">{moment(message.timestamp).fromNow()}</p>
             </div>
           </div>
         )}

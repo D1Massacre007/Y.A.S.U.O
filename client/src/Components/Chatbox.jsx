@@ -265,12 +265,17 @@ const Chatbox = () => {
         </AnimatePresence>
 
         {messages.map((message, i, arr) => (
-          <Message
-            key={message._id ?? message.timestamp}
-            message={message}
-            isLast={i === arr.length - 1}
-          />
-        ))}
+  <Message
+    key={message._id ?? message.timestamp}
+    message={message}
+    isLast={i === arr.length - 1}
+    userAvatar={message.role === "user"
+      ? user?.profilePic || assets.default_avatar
+      : assets.ai_avatar
+    }
+  />
+))}
+
 
         {loading && messages.length > 0 && (
           <div className="loader flex items-center gap-1.5 mt-2 ml-2">

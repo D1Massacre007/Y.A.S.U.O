@@ -1,3 +1,4 @@
+// src/Context/AppContext.jsx
 import React, { createContext, useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -15,6 +16,27 @@ export const AppContextProvider = ({ children }) => {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
   const [token, setToken] = useState(localStorage.getItem("token") || null);
   const [loadingUser, setLoadingUser] = useState(true);
+
+  // ✅ Detect token from URL (Google/GitHub redirect) OR localStorage
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tokenFromURL = urlParams.get("token");
+
+    if (tokenFromURL) {
+      localStorage.setItem("token", tokenFromURL);
+      setToken(tokenFromURL);
+      axios.defaults.headers.common["Authorization"] = tokenFromURL;
+
+      // Clean token from URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else {
+      const savedToken = localStorage.getItem("token");
+      if (savedToken) {
+        setToken(savedToken);
+        axios.defaults.headers.common["Authorization"] = savedToken;
+      }
+    }
+  }, []);
 
   // Fetch logged-in user info
   const fetchUser = async () => {
@@ -48,9 +70,7 @@ export const AppContextProvider = ({ children }) => {
 
       if (data.success) {
         setChats(data.chats);
-
         if (isNewAccount) {
-          // Force no old chat selected for new account
           setSelectedChat(null);
         } else {
           setSelectedChat(
@@ -73,8 +93,7 @@ export const AppContextProvider = ({ children }) => {
         headers: { Authorization: token },
       });
       if (data.success) {
-        await fetchUserChats(true); // fetch chats, mark as new account
-        
+        await fetchUserChats(true);
       }
       navigate("/");
       return data.chat;
@@ -88,15 +107,11 @@ export const AppContextProvider = ({ children }) => {
     try {
       setToken(loginData.token);
       localStorage.setItem("token", loginData.token);
+      axios.defaults.headers.common["Authorization"] = loginData.token;
       setUser(loginData.user);
 
-      // Clear old chat immediately
       setSelectedChat(null);
-
-      // Fetch chats as new account
       await fetchUserChats(true);
-
-      // Create new chat immediately
       await createNewChat();
 
       toast.success("Login successful!");
@@ -121,7 +136,7 @@ export const AppContextProvider = ({ children }) => {
     }
   }, [token]);
 
-  // Only fetch chats when user exists
+  // Fetch chats when user exists
   useEffect(() => {
     if (user) fetchUserChats();
   }, [user]);

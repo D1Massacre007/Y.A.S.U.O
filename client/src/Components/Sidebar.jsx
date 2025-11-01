@@ -1,9 +1,21 @@
+// src/Components/Sidebar.jsx
 import React, { useState, useEffect } from "react";
 import { useAppContext } from "../Context/AppContext";
 import { assets, dummyUserData } from "../assets/assets";
 import moment from "moment";
 import logo_full_1_1 from "../assets/logo_full_1_1.png";
 import logoutIcon from "../assets/icons8-logout-64.png";
+import userIcon from "../assets/user_icon.svg";
+
+// Helper to generate consistent color from a string
+function stringToColor(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const color = `hsl(${hash % 360}, 60%, 50%)`;
+  return color;
+}
 
 const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
   const {
@@ -13,7 +25,6 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
     navigate,
     user,
     setSelectedChat,
-    createNewChat,
     axios,
     setChats,
     fetchUserChats,
@@ -21,16 +32,36 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
     token,
   } = useAppContext();
 
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("online");
+  const [manual, setManual] = useState(false);
+  const [creatingChat, setCreatingChat] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(null);
+
   const logout = () => {
     localStorage.removeItem("token");
     setToken(null);
+    window.location.reload();
   };
 
+  // Avatar logic
+  // Avatar logic with proper Google/GitHub support
+useEffect(() => {
+  if (!user) return setAvatarUrl(userIcon);
+
+  let pic = user.profilePic?.trim() || user.picture?.trim() || user.avatar_url?.trim() || "";
+
+  if (pic.startsWith("//")) pic = "https:" + pic; // fix protocol
+
+  // Accept whatever Google/GitHub sends, fallback only on error
+  setAvatarUrl(pic || userIcon);
+}, [user]);
+
+
+  // Delete chat
   const deleteChat = async (e, chatId) => {
     e.stopPropagation();
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this chat?"
-    );
+    const confirmDelete = window.confirm("Are you sure you want to delete this chat?");
     if (!confirmDelete) return;
 
     try {
@@ -49,11 +80,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
     }
   };
 
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("online");
-  const [manual, setManual] = useState(false);
-  const [creatingChat, setCreatingChat] = useState(false);
-
+  // Status management
   const getStatusColor = () => {
     switch (status) {
       case "online":
@@ -73,9 +100,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
     const handleActivity = () => {
       setStatus("online");
       clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        setStatus("idle");
-      }, 60000);
+      timeoutId = setTimeout(() => setStatus("idle"), 60000);
     };
     handleActivity();
     window.addEventListener("mousemove", handleActivity);
@@ -109,10 +134,9 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
         setChats((prev) => [data.chat, ...prev]);
         setSelectedChat(data.chat);
         navigate("/");
-        // ✅ No toast here
       }
     } catch (error) {
-      console.error(error.message);
+      console.error("Chat create error:", error.message);
     } finally {
       setCreatingChat(false);
     }
@@ -127,18 +151,15 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
         absolute left-0 top-0 z-20 md:relative md:translate-x-0
         ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
-      {/* Logo + Beta */}
+      {/* Logo */}
       <div className="flex items-center gap-3 w-full mb-5 relative">
         <img
           src={theme === "dark" ? logo_full_1_1 : assets.logo_full_dark}
           className="h-12"
           alt="Logo"
+          onError={(e) => (e.currentTarget.src = logo_full_1_1)}
         />
-        <span
-          className="px-3 py-0.5 text-[9px] font-bold text-white bg-gradient-to-r from-purple-700 to-pink-500/70 
-                     backdrop-blur-sm rounded-full uppercase tracking-wider shadow-md -ml-8"
-          title="Beta Version"
-        >
+        <span className="px-3 py-0.5 text-[9px] font-bold text-white bg-gradient-to-r from-purple-700 to-pink-500/70 rounded-full uppercase tracking-wider shadow-md -ml-8">
           Beta
         </span>
       </div>
@@ -153,7 +174,7 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
           creatingChat ? "opacity-60 cursor-not-allowed" : ""
         }`}
       >
-        <span className="mr-2 text-xl">+</span>{" "}
+        <span className="mr-2 text-xl">+</span>
         {creatingChat ? "Creating..." : "New Chat"}
       </button>
 
@@ -212,24 +233,20 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
           ))}
       </div>
 
-      {/* 💎 Credits */}
+      {/* Credits */}
       <div
         onClick={() => navigate("/credits")}
         className="flex items-center gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 
         rounded-md cursor-pointer hover:scale-103 transition-all"
       >
-        <img
-          src={assets.diamond_icon}
-          className="w-4.5 dark:invert"
-          alt="Credits"
-        />
+        <img src={assets.diamond_icon} className="w-4.5 dark:invert" alt="Credits" />
         <div className="flex flex-col text-sm">
           <p>Credits : {user?.credits ?? dummyUserData.credits}</p>
           <p className="text-xs text-gray-400">Purchase credits to know more</p>
         </div>
       </div>
 
-      {/* Dark Mode Toggle */}
+      {/* Dark Mode */}
       <div className="flex items-center justify-between gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md">
         <div className="flex items-center gap-2 text-sm">
           <img src={assets.theme_icon} className="w-4 not-dark:invert" alt="" />
@@ -248,16 +265,28 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
         </label>
       </div>
 
-      {/* User Section */}
-      <div
-        className="relative flex items-center gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer group"
-      >
+      {/* 👤 User Section */}
+      <div className="relative flex items-center gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer group">
         <div className="relative">
-          <img src={assets.user_icon} className="w-9 rounded-full" alt="User" />
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              className="w-7 h-7 rounded-full object-cover"
+              alt="User"
+              onError={(e) => (e.currentTarget.src = userIcon)}
+            />
+          ) : (
+            <div
+              className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm"
+              style={{ backgroundColor: user?.name ? stringToColor(user.name) : "#888" }}
+            >
+              {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+            </div>
+          )}
           <span
             onClick={handleStatusClick}
             title="Click to change status"
-            className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white cursor-pointer transition-all duration-500 ease-in-out ${getStatusColor()}`}
+            className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white cursor-pointer transition-all duration-500 ease-in-out ${getStatusColor()}`}
           ></span>
         </div>
 
