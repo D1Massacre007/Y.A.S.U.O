@@ -82,7 +82,7 @@ const Login = () => {
         </a>
       </div>
 
-      <h1 className="mb-4 text-center text-2xl font-semibold text-purple-400">Y.A.S.U.O</h1>
+      <h1 className="mb-4 text-center text-2xl font-semibold text-gray-400">Y.A.S.U.O</h1>
 
       {message && <p className="text-center text-green-400 mb-4">{message}</p>}
 
