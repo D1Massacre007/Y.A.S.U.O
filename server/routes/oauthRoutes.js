@@ -1,42 +1,46 @@
-// server/routes/authRoutes.js
 import express from "express";
 import passport from "../configs/passport.js";
 import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
-// JWT generator
 const generateToken = (id) =>
-  jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+  jwt.sign({ id }, process.env.JWT_SECRET || "fallbacksecret", {
+    expiresIn: "30d",
+  });
 
 // --- Google OAuth ---
-router.get(
-  "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  router.get(
+    "/google",
+    passport.authenticate("google", { scope: ["profile", "email"] })
+  );
 
-router.get(
-  "/google/callback",
-  passport.authenticate("google", { session: false, failureRedirect: "/" }),
-  (req, res) => {
-    const token = generateToken(req.user._id);
-    res.redirect(`${process.env.CLIENT_URL}/?token=${token}`);
-  }
-);
+  router.get(
+    "/google/callback",
+    passport.authenticate("google", { session: false, failureRedirect: "/" }),
+    (req, res) => {
+      const token = generateToken(req.user._id);
+      res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/?token=${token}`);
+    }
+  );
+}
 
 // --- GitHub OAuth ---
-router.get(
-  "/github",
-  passport.authenticate("github", { scope: ["user:email"] })
-);
+if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
+  router.get(
+    "/github",
+    passport.authenticate("github", { scope: ["user:email"] })
+  );
 
-router.get(
-  "/github/callback",
-  passport.authenticate("github", { session: false, failureRedirect: "/" }),
-  (req, res) => {
-    const token = generateToken(req.user._id);
-    res.redirect(`${process.env.CLIENT_URL}/?token=${token}`);
-  }
-);
+  router.get(
+    "/github/callback",
+    passport.authenticate("github", { session: false, failureRedirect: "/" }),
+    (req, res) => {
+      const token = generateToken(req.user._id);
+      res.redirect(`${process.env.CLIENT_URL || "http://localhost:5173"}/?token=${token}`);
+    }
+  );
+}
 
 export default router;
