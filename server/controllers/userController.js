@@ -1,8 +1,8 @@
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
 import Chat from "../models/Chat.js";
 
+// ========================= HELPERS =========================
 // Generate JWT Token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
@@ -18,22 +18,19 @@ export const registerUser = async (req, res) => {
       return res.json({ success: false, message: "User already exists" });
     }
 
-    const hashedPassword = password
-      ? await bcrypt.hash(password, 10)
-      : undefined;
-
+    // Create user (pre-save hook will hash password if provided)
     const user = await User.create({
       name,
       email,
-      password: hashedPassword,
-      profilePic: profilePic || "", // can be Google/GitHub avatar
+      password, // plain password; schema hook will hash
+      profilePic: profilePic || "",
       oauthProvider: oauthProvider || "local",
     });
 
-    // 🧹 Clean chat space
+    // Clean chat space
     await Chat.deleteMany({ userId: user._id });
 
-    // 🆕 Create starter chat
+    // Create starter chat
     await Chat.create({
       userId: user._id,
       messages: [],
@@ -55,6 +52,7 @@ export const registerUser = async (req, res) => {
       message: "Registration successful",
     });
   } catch (error) {
+    console.error(error);
     res.json({ success: false, message: error.message });
   }
 };
@@ -65,20 +63,23 @@ export const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-    if (!user)
+    if (!user) {
       return res.json({ success: false, message: "Invalid email or password" });
+    }
 
     if (user.oauthProvider !== "local") {
-      // OAuth user cannot login with password
+      // OAuth users cannot login with password
       return res.json({
         success: false,
         message: `Please login with ${user.oauthProvider}`,
       });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
+    // Compare password
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
       return res.json({ success: false, message: "Invalid email or password" });
+    }
 
     const token = generateToken(user._id);
 
@@ -94,14 +95,14 @@ export const loginUser = async (req, res) => {
       message: "Login successful",
     });
   } catch (error) {
-    return res.json({ success: false, message: error.message });
+    console.error(error);
+    res.json({ success: false, message: error.message });
   }
 };
 
 // ========================= OAUTH LOGIN / REGISTER =========================
-// Example: Google or GitHub login
 export const oauthLogin = async (req, res) => {
-  const { name, email, profilePic, provider } = req.body; // provider = "google" | "github"
+  const { name, email, profilePic, provider } = req.body;
   try {
     let user = await User.findOne({ email });
 
@@ -143,6 +144,7 @@ export const oauthLogin = async (req, res) => {
       message: "Login successful",
     });
   } catch (error) {
+    console.error(error);
     res.json({ success: false, message: error.message });
   }
 };
@@ -153,11 +155,13 @@ export const getUser = async (req, res) => {
     const user = await User.findById(req.user.id).select(
       "name email profilePic oauthProvider credits"
     );
-    if (!user)
+    if (!user) {
       return res.json({ success: false, message: "User not found" });
+    }
 
     res.json({ success: true, user });
   } catch (error) {
+    console.error(error);
     res.json({ success: false, message: error.message });
   }
 };
@@ -184,6 +188,7 @@ export const getPublishedImages = async (req, res) => {
 
     res.json({ success: true, images: publishedImages.reverse() });
   } catch (error) {
+    console.error(error);
     res.json({ success: false, message: error.message });
   }
 };

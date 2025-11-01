@@ -18,5 +18,11 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+// Add method to compare passwords
+userSchema.methods.comparePassword = async function(candidatePassword) {
+  if (!this.password) return false; // no password set (OAuth user)
+  return bcrypt.compare(candidatePassword, this.password);
+};
+
 const User = mongoose.model("User", userSchema);
 export default User;

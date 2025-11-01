@@ -17,7 +17,7 @@ export const AppContextProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("token") || null);
   const [loadingUser, setLoadingUser] = useState(true);
 
-  // ✅ Detect token from URL (Google/GitHub redirect) OR localStorage
+  // Detect token from URL (OAuth redirect) or localStorage
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const tokenFromURL = urlParams.get("token");
@@ -61,7 +61,7 @@ export const AppContextProvider = ({ children }) => {
   };
 
   // Fetch chats of logged-in user
-  const fetchUserChats = async (isNewAccount = false) => {
+  const fetchUserChats = async () => {
     if (!token) return;
     try {
       const { data } = await axios.get("/api/chat/get", {
@@ -70,13 +70,7 @@ export const AppContextProvider = ({ children }) => {
 
       if (data.success) {
         setChats(data.chats);
-        if (isNewAccount) {
-          setSelectedChat(null);
-        } else {
-          setSelectedChat(
-            (prev) => prev || (data.chats.length > 0 ? data.chats[0] : null)
-          );
-        }
+        setSelectedChat((prev) => prev || (data.chats.length > 0 ? data.chats[0] : null));
       } else {
         toast.error(data.message);
       }
@@ -85,18 +79,17 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // Create new chat
+  // Create new chat (only triggered by user action)
   const createNewChat = async () => {
-    if (!user) return toast("Login to create a new chat");
+    if (!user) return; // silently fail if not logged in
     try {
       const { data } = await axios.get("/api/chat/create", {
         headers: { Authorization: token },
       });
       if (data.success) {
-        await fetchUserChats(true);
+        await fetchUserChats();
+        return data.chat;
       }
-      navigate("/");
-      return data.chat;
     } catch (err) {
       toast.error(err.response?.data?.message || err.message);
     }
@@ -111,10 +104,7 @@ export const AppContextProvider = ({ children }) => {
       setUser(loginData.user);
 
       setSelectedChat(null);
-      await fetchUserChats(true);
-      await createNewChat();
-
-      toast.success("Login successful!");
+      await fetchUserChats(); // fetch chats but do NOT create new chat automatically
     } catch (error) {
       toast.error("Login failed");
     }

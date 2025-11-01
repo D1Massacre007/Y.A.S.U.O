@@ -1,3 +1,5 @@
+// src/App.jsx
+
 import React, { useState, useEffect } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import Sidebar from "./Components/Sidebar";
@@ -17,11 +19,10 @@ const App = () => {
 
   // Auto-select latest chat when chats update
   useEffect(() => {
-  if (user && chats.length > 0) {
-    setSelectedChat(chats[0]); // select latest chat
-  }
-}, [chats, user, setSelectedChat]);
-
+    if (user && chats.length > 0) {
+      setSelectedChat(chats[0]); // select latest chat
+    }
+  }, [chats, user, setSelectedChat]);
 
   if (loadingUser) return <Loading />;
 
@@ -39,7 +40,8 @@ const App = () => {
 
       {user ? (
         <div
-          className={`relative h-screen w-screen flex transition-colors duration-500 ${
+          // FIX: Changed h-screen to h-dvh for correct mobile viewport height
+          className={`relative h-dvh w-screen flex transition-colors duration-500 overflow-hidden ${
             theme === "dark"
               ? "bg-gradient-to-br from-[#6a0ca3] via-[#2a1025] to-[#050009] text-white"
               : "bg-gradient-to-b from-[#f5f5f5] to-[#e0e0e0] text-black"
@@ -53,7 +55,8 @@ const App = () => {
         </div>
       ) : (
         <div
-          className={`flex items-center justify-center h-screen w-screen transition-colors duration-500 ${
+          // Login screen also uses h-dvh for consistency
+          className={`flex items-center justify-center h-dvh w-screen transition-colors duration-500 ${
             theme === "dark"
               ? "bg-gradient-to-br from-[#3a0ca3] via-[#1a1025] to-[#050009]"
               : "bg-gradient-to-b from-[#1f1c2c] to-[#3e2a5a]"

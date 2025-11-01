@@ -55,13 +55,11 @@ const Login = () => {
           setMessage(data.message || "Login failed. Check your credentials.");
         }
       } else {
-        // Registration mode: show success message, but do NOT auto-login
-        if (data.success) {
-          setMessage("Account created successfully! Please log in.");
-          setMode("login");
-        } else {
+        // Registration mode: do NOT show success message
+        if (!data.success) {
           setMessage(data.message || "Registration failed.");
         }
+        setMode("login"); // Switch to login regardless
       }
     } catch (err) {
       console.error(err);
@@ -84,7 +82,7 @@ const Login = () => {
 
       <h1 className="mb-4 text-center text-2xl font-semibold text-gray-400">Y.A.S.U.O</h1>
 
-      {message && <p className="text-center text-green-400 mb-4">{message}</p>}
+      {message && <p className="text-center text-red-400 mb-4">{message}</p>}
 
       <form onSubmit={handleSubmit}>
         {mode === "register" && (

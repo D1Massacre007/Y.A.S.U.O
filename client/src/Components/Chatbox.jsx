@@ -11,6 +11,7 @@ import leetcodeLight from "../assets/Leetcode.png";
 import leetcodeDark from "../assets/leetcode_dark.png";
 import linkedinLight from "../assets/linkedin.png";
 import linkedinDark from "../assets/linkedin_white.png";
+import userIcon from "../assets/user_icon.svg"; // Import userIcon here
 
 const suggestions = [
   "Who is Annaz?",
@@ -20,7 +21,8 @@ const suggestions = [
   "What is his educational background?",
 ];
 
-const smoothTransition = { type: "spring", stiffness: 100, damping: 20, mass: 0.8 }; // buttery spring
+// 🚀 OPTIMIZATION: Adjusted spring values for faster, smoother mobile performance.
+const smoothTransition = { type: "spring", stiffness: 80, damping: 18, mass: 0.8 }; 
 
 const Chatbox = () => {
   const containerRef = useRef(null);
@@ -197,10 +199,11 @@ const Chatbox = () => {
               }
             }
 
+            // Small performance tweak for typing speed on mobile
             const delay =
               [".", ",", "?", "!"].includes(fullReply[i - 1])
                 ? 50 + Math.random() * 50
-                : 12 + Math.random() * 8;
+                : 10 + Math.random() * 5; // Reduced typing delay slightly
             setTimeout(type, delay);
           }
         };
@@ -229,15 +232,12 @@ const Chatbox = () => {
 
   return (
     <div
-      // 🐛 FIXES for Mobile Layout and Overscroll/Keyboard Bounce 🐛
       className={`flex-1 flex flex-col justify-between m-5 md:m-10 xl:mx-30 max-md:mt-14 2xl:pr-10
-        w-full max-w-full overflow-x-hidden **h-full** **overscroll-y-none**
-        ${
+        w-full max-w-full overflow-x-hidden **h-full** **overscroll-y-none** p-2 sm:p-5 **pb-20** ${ // **pb-20** ensures input/links are above the mobile home/keyboard bar
           theme === "dark"
-            ? "**bg-purple-950**" // Ensure dark theme background is set to cover all space
-            : "**bg-white**"       // Ensure light theme background is set
-        }`
-      }
+            ? "**bg-purple-950**"
+            : "**bg-white**" 
+        }`}
     >
       {/* Chat messages */}
       <div ref={containerRef} className="flex-1 mb-5 overflow-y-auto relative">
@@ -264,17 +264,29 @@ const Chatbox = () => {
           )}
         </AnimatePresence>
 
-        {messages.map((message, i, arr) => (
-  <Message
-    key={message._id ?? message.timestamp}
-    message={message}
-    isLast={i === arr.length - 1}
-    userAvatar={message.role === "user"
-      ? user?.profilePic || assets.default_avatar
-      : assets.ai_avatar
-    }
-  />
-))}
+        {messages.map((message, i, arr) => {
+          
+          let userAvatarSource = assets.ai_avatar;
+          
+          if (message.role === "user") {
+            const remotePic = user?.profilePic || user?.picture || user?.avatar_url;
+            
+            if (remotePic) {
+              userAvatarSource = remotePic; 
+            } else {
+              userAvatarSource = userIcon; 
+            }
+          }
+
+          return (
+            <Message
+              key={message._id ?? message.timestamp}
+              message={message}
+              isLast={i === arr.length - 1}
+              userAvatar={userAvatarSource} 
+            />
+          );
+        })}
 
 
         {loading && messages.length > 0 && (
@@ -318,7 +330,7 @@ const Chatbox = () => {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ ...smoothTransition, duration: 0.5 }}
+              transition={{ ...smoothTransition, duration: 0.3 }} // Faster transition for suggestions
               className="flex overflow-x-auto overflow-y-hidden gap-2 py-2 px-1 mt-2 w-full max-w-full scrollbar-hide snap-x snap-mandatory"
             >
               {suggestions.map((s, idx) => (
@@ -329,7 +341,7 @@ const Chatbox = () => {
                   initial={{ opacity: 0, y: -10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  transition={{ ...smoothTransition, duration: 0.4 }}
+                  transition={{ ...smoothTransition, duration: 0.3, delay: idx * 0.03 }} // Faster delay
                 >
                   {s}
                 </motion.button>
