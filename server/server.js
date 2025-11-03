@@ -13,29 +13,40 @@ import passport from "passport";
 dotenv.config();
 const app = express();
 
-// Connect to MongoDB
+// Connect MongoDB
 connectDB();
 
 // Stripe webhook (raw body first)
-app.post("/api/stripe", express.raw({ type: "application/json" }), stripeWebhook);
+app.post(
+  "/api/stripe",
+  express.raw({ type: "application/json" }),
+  stripeWebhook
+);
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
-
-// Passport (serverless-friendly: no sessions)
 app.use(passport.initialize());
 
-// API routes
+// API Routes
 app.use("/api/user", userRouter);
 app.use("/api/chat", chatRouter);
 app.use("/api/message", messageRouter);
 app.use("/api/credit", creditRouter);
 app.use("/api/auth", oauthRoutes);
 
-// Test route
+// Health check
 app.get("/", (req, res) => res.send("✅ Server is Live!"));
 
-// Start server (local)
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+// Catch-all 404 (fix for path-to-regexp crash)
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: "Route not found" });
+});
+
+// Local dev server (optional, Vercel ignores this)
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+}
+
+export default app; // Required for Vercel serverless
