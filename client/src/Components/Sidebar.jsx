@@ -1,4 +1,3 @@
-// src/Components/Sidebar.jsx
 import React, { useState, useEffect } from "react";
 import { useAppContext } from "../Context/AppContext";
 import { assets, dummyUserData } from "../assets/assets";
@@ -7,7 +6,7 @@ import logo_full_1_1 from "../assets/logo_full_1_1.png";
 import logoutIcon from "../assets/icons8-logout-64.png";
 import userIcon from "../assets/user_icon.svg";
 
-// Helper to generate consistent color from a string
+// Helper to generate consistent color from a string (if needed later)
 function stringToColor(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -16,6 +15,39 @@ function stringToColor(str) {
   const color = `hsl(${hash % 360}, 60%, 50%)`;
   return color;
 }
+
+// 👤 User Avatar Component
+const UserAvatar = ({ user }) => {
+  let initialUrl =
+    user?.profilePic?.trim() ||
+    user?.picture?.trim() ||
+    user?.avatar_url?.trim() ||
+    "";
+
+  if (initialUrl.startsWith("//")) initialUrl = "https:" + initialUrl;
+  const [avatarSrc, setAvatarSrc] = useState(initialUrl);
+
+  useEffect(() => {
+    let newUrl =
+      user?.profilePic?.trim() ||
+      user?.picture?.trim() ||
+      user?.avatar_url?.trim() ||
+      "";
+    if (newUrl.startsWith("//")) newUrl = "https:" + newUrl;
+    setAvatarSrc(newUrl);
+  }, [user]);
+
+  const handleError = () => setAvatarSrc(null);
+
+  return (
+    <img
+      src={avatarSrc || userIcon}
+      onError={handleError}
+      className="w-7 h-7 rounded-full object-cover flex-shrink-0"
+      alt="User Avatar"
+    />
+  );
+};
 
 const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
   const {
@@ -30,13 +62,13 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
     fetchUserChats,
     setToken,
     token,
+    selectedChat,
   } = useAppContext();
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("online");
   const [manual, setManual] = useState(false);
   const [creatingChat, setCreatingChat] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState(null);
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -44,21 +76,6 @@ const Sidebar = ({ isMenuOpen, setIsMenuOpen }) => {
     window.location.reload();
   };
 
-  // Avatar logic
-  // Avatar logic with proper Google/GitHub support
-useEffect(() => {
-  if (!user) return setAvatarUrl(userIcon);
-
-  let pic = user.profilePic?.trim() || user.picture?.trim() || user.avatar_url?.trim() || "";
-
-  if (pic.startsWith("//")) pic = "https:" + pic; // fix protocol
-
-  // Accept whatever Google/GitHub sends, fallback only on error
-  setAvatarUrl(pic || userIcon);
-}, [user]);
-
-
-  // Delete chat
   const deleteChat = async (e, chatId) => {
     e.stopPropagation();
     const confirmDelete = window.confirm("Are you sure you want to delete this chat?");
@@ -80,7 +97,6 @@ useEffect(() => {
     }
   };
 
-  // Status management
   const getStatusColor = () => {
     switch (status) {
       case "online":
@@ -88,6 +104,7 @@ useEffect(() => {
       case "idle":
         return "bg-yellow-400 shadow-[0_0_6px_2px_rgba(250,204,21,0.6)]";
       case "Do Not Disturb":
+      case "DND":
         return "bg-red-500 shadow-[0_0_6px_2px_rgba(239,68,68,0.6)]";
       default:
         return "bg-gray-400";
@@ -115,11 +132,7 @@ useEffect(() => {
   const handleStatusClick = () => {
     setManual(true);
     setStatus((prev) =>
-      prev === "online"
-        ? "idle"
-        : prev === "idle"
-        ? "Do Not Disturb"
-        : "online"
+      prev === "online" ? "idle" : prev === "idle" ? "Do Not Disturb" : "online"
     );
   };
 
@@ -142,6 +155,28 @@ useEffect(() => {
     }
   };
 
+  const handleLogoClick = () => {
+    if (window.location.pathname === "/credits") {
+      navigate("/");
+      setTimeout(() => {
+        if (selectedChat) {
+          setSelectedChat({ ...selectedChat });
+        } else if (chats.length > 0) {
+          setSelectedChat(chats[0]);
+        }
+      }, 150);
+    } else if (window.location.pathname === "/") {
+      if (selectedChat) {
+        setSelectedChat({ ...selectedChat });
+      } else {
+        setIsMenuOpen(true);
+      }
+    } else {
+      navigate("/");
+      setIsMenuOpen(true);
+    }
+  };
+
   return (
     <div
       className={`flex flex-col h-screen min-w-72 p-4
@@ -152,16 +187,16 @@ useEffect(() => {
         ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
       {/* Logo */}
-      <div className="flex items-center gap-3 w-full mb-5 relative">
+      <div
+        onClick={handleLogoClick}
+        className="flex items-center gap-3 w-full mb-5 relative cursor-pointer select-none"
+      >
         <img
           src={theme === "dark" ? logo_full_1_1 : assets.logo_full_dark}
           className="h-12"
           alt="Logo"
           onError={(e) => (e.currentTarget.src = logo_full_1_1)}
         />
-        <span className="px-3 py-0.5 text-[9px] font-bold text-white bg-gradient-to-r from-purple-700 to-pink-500/70 rounded-full uppercase tracking-wider shadow-md -ml-8">
-          Beta
-        </span>
       </div>
 
       {/* New Chat Button */}
@@ -201,36 +236,42 @@ useEffect(() => {
                   .includes(search.toLowerCase())
               : chat.name.toLowerCase().includes(search.toLowerCase())
           )
-          .map((chat) => (
-            <div
-              key={chat._id}
-              onClick={() => {
-                navigate("/");
-                setSelectedChat(chat);
-                setIsMenuOpen(false);
-              }}
-              className="p-2 px-4 dark:bg-[#57317C]/10 border border-gray-300 
+          .map((chat) => {
+            const chatTitle =
+              chat.messages.length > 0 ? chat.messages[0].content : chat.name;
+
+            return (
+              <div
+                key={chat._id}
+                onClick={() => {
+                  navigate("/");
+                  setTimeout(() => setSelectedChat(chat), 50);
+                  setIsMenuOpen(false);
+                }}
+                className="p-2 px-4 dark:bg-[#57317C]/10 border border-gray-300 
               dark:border-[#80609F]/15 rounded-md cursor-pointer 
               flex justify-between items-center hover:bg-gray-100 dark:hover:bg-[#57317C]/20 transition-all"
-            >
-              <div>
-                <p className="truncate w-full">
-                  {chat.messages.length > 0
-                    ? chat.messages[0].content.slice(0, 32)
-                    : chat.name}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-[#B1A6C0]">
-                  {moment(chat.updatedAt).fromNow()}
-                </p>
+              >
+                <div>
+                  {/* Show truncated title but full prompt on hover */}
+                  <p className="truncate w-full" title={chatTitle}>
+                    {chatTitle.length > 50
+                      ? chatTitle.slice(0, 50) + "..."
+                      : chatTitle}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-[#B1A6C0]">
+                    {moment(chat.updatedAt).fromNow()}
+                  </p>
+                </div>
+                <img
+                  src={assets.bin_icon}
+                  className="w-4 cursor-pointer not-dark:invert"
+                  alt="Delete"
+                  onClick={(e) => deleteChat(e, chat._id)}
+                />
               </div>
-              <img
-                src={assets.bin_icon}
-                className="w-4 cursor-pointer not-dark:invert"
-                alt="Delete"
-                onClick={(e) => deleteChat(e, chat._id)}
-              />
-            </div>
-          ))}
+            );
+          })}
       </div>
 
       {/* Credits */}
@@ -267,22 +308,8 @@ useEffect(() => {
 
       {/* 👤 User Section */}
       <div className="relative flex items-center gap-2 p-3 mt-4 border border-gray-300 dark:border-white/15 rounded-md cursor-pointer group">
-        <div className="relative">
-          {avatarUrl ? (
-            <img
-              src={avatarUrl}
-              className="w-7 h-7 rounded-full object-cover"
-              alt="User"
-              onError={(e) => (e.currentTarget.src = userIcon)}
-            />
-          ) : (
-            <div
-              className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm"
-              style={{ backgroundColor: user?.name ? stringToColor(user.name) : "#888" }}
-            >
-              {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
-            </div>
-          )}
+        <div className="relative flex-shrink-0">
+          <UserAvatar user={user} />
           <span
             onClick={handleStatusClick}
             title="Click to change status"
@@ -290,7 +317,7 @@ useEffect(() => {
           ></span>
         </div>
 
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <p className="text-sm dark:text-primary truncate">
             {user ? user.name : "Login your account"}
           </p>
