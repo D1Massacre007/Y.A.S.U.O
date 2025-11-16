@@ -216,3 +216,5 @@ const Message = ({ message, isLast, userAvatar }) => {
 };
 
 export default React.memo(Message)
+
+// Message Done
