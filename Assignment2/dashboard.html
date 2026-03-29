@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FoodShare - Admin Dashboard</title>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <a href="index.html">
+      <div class="logo">
+        <img src="icons/Logo.png" alt="logo">
+        <span>FoodShare</span>
+      </div>
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="company.html">Company</a>
+      <a href="items.html">Items</a>
+      <a href="profile.html">Profile</a>
+      <a href="dashboard.html"><b>Dashboard</b></a>
+      <a href="Login.html">Logout</a>
+    </nav>
+
+    <div class="nav-right">
+      <div class="search-box">
+        <img src="icons/Search_icon.png" alt="search" class="icon">
+        <input type="text" placeholder="Hungry?">
+      </div>
+      <button class="donate-btn">Donate</button>
+    </div>
+  </header>
+
+  <!-- DASHBOARD CONTAINER -->
+  <section class="dashboard-container">
+
+    <!-- ADD ITEM FORM -->
+    <div class="dashboard-form">
+      <h2>Add New Item</h2>
+
+      <form>
+        <label>Item Name</label>
+        <input type="text" placeholder="Enter item name">
+
+        <label>Price</label>
+        <input type="number" placeholder="Enter price">
+
+        <label>Category</label>
+        <input type="text" placeholder="e.g. Lunch, Dinner">
+
+        <label>Description</label>
+        <textarea placeholder="Enter description"></textarea>
+
+        <label>Image</label>
+        <input type="file" accept="image/*">
+
+        <button type="submit">Add Item</button>
+      </form>
+    </div>
+
+    <!-- ITEMS TABLE -->
+    <div class="dashboard-table">
+      <h2>Listed Items</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Category</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr>
+            <td>1</td>
+            <td>Chicken Biryani</td>
+            <td>$12.99</td>
+            <td>Lunch</td>
+            <td>
+              <button class="edit-btn">Edit</button>
+              <button class="delete-btn">Delete</button>
+            </td>
+          </tr>
+
+          <tr>
+            <td>2</td>
+            <td>Alfredo Pasta</td>
+            <td>$10.99</td>
+            <td>Dinner</td>
+            <td>
+              <button class="edit-btn">Edit</button>
+              <button class="delete-btn">Delete</button>
+            </td>
+          </tr>
+
+          <tr>
+            <td>3</td>
+            <td>Margherita Pizza</td>
+            <td>$9.99</td>
+            <td>Dinner</td>
+            <td>
+              <button class="edit-btn">Edit</button>
+              <button class="delete-btn">Delete</button>
+            </td>
+          </tr>
+
+          <tr>
+            <td>4</td>
+            <td>Grilled Chicken Salad</td>
+            <td>$8.50</td>
+            <td>Healthy</td>
+            <td>
+              <button class="edit-btn">Edit</button>
+              <button class="delete-btn">Delete</button>
+            </td>
+          </tr>
+
+          <tr>
+            <td>5</td>
+            <td>Veg Fried Rice</td>
+            <td>$7.25</td>
+            <td>Lunch</td>
+            <td>
+              <button class="edit-btn">Edit</button>
+              <button class="delete-btn">Delete</button>
+            </td>
+          </tr>
+
+          <tr>
+            <td>6</td>
+            <td>Beef Burger</td>
+            <td>$6.99</td>
+            <td>Fast Food</td>
+            <td>
+              <button class="edit-btn">Edit</button>
+              <button class="delete-btn">Delete</button>
+            </td>
+          </tr>
+
+          <tr>
+            <td>7</td>
+            <td>Spaghetti Bolognese</td>
+            <td>$11.50</td>
+            <td>Dinner</td>
+            <td>
+              <button class="edit-btn">Edit</button>
+              <button class="delete-btn">Delete</button>
+            </td>
+          </tr>
+
+          <tr>
+            <td>8</td>
+            <td>Paneer Butter Masala</td>
+            <td>$9.75</td>
+            <td>Lunch</td>
+            <td>
+              <button class="edit-btn">Edit</button>
+              <button class="delete-btn">Delete</button>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+  </section>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

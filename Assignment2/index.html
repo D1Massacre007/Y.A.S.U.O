@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FoodShare</title>
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .food-card {
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: 0.2s;
+      cursor: pointer;
+    }
+
+    .food-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .food-image {
+      position: relative;
+    }
+
+    .food-image img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: orange;
+      color: #fff;
+      padding: 5px 8px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
+
+    .heart {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #fff;
+      padding: 5px;
+      border-radius: 50%;
+    }
+
+    .food-info {
+      padding: 12px;
+    }
+
+    .food-info h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .meta {
+      color: gray;
+      font-size: 14px;
+      margin: 5px 0;
+    }
+
+    .delivery {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <a href="index.html">
+      <div class="logo">
+        <img src="icons\Logo.png" alt="logo">
+        <span>FoodShare</span>
+      </div>
+    </a>
+
+    <nav class="nav-links">
+      <a href="#"><b>Home</b></a>
+      <a href="company.html">Company</a>
+      <a href="items.html">Items</a>
+      <a href="profile.html">Profile</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="Register.html">Register</a>
+    </nav>
+
+    <div class="nav-right">
+      <div class="search-box">
+        <img src="icons/Search_icon.png" alt="search" class="icon">
+        <input type="text" placeholder="Hungry?">
+      </div>
+      <button class="donate-btn">Donate</button>
+      <a href="checkout.html">
+        <img src="icons/Shopping_cart.png" class="icon">
+      </a>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-text">
+      <h1>Fresh Flavors, Shared<br>by Neighbors.</h1>
+      <p><i>Find fresh, homemade food nearby. Eat better, waste less.</i></p>
+
+      <div class="hero-buttons">
+        <button class="active">Delivery</button>
+        <button class="pck">Pickup</button>
+      </div>
+    </div>
+
+    <div class="hero-image">
+      <img src="icons\food.png" alt="food">
+    </div>
+  </section>
+
+  <!-- GRID -->
+  <section class="grid">
+    <a href="item-details.html?item=1" style="text-decoration:none; color:black;">
+      <div class="food-card">
+        <div class="food-image">
+          <img src="Images\Chicken-Biryani.jpg">
+          <span class="badge">Popular</span>
+          <span class="heart">♡</span>
+        </div>
+        <div class="food-info">
+          <h3>Chicken Biryani</h3>
+          <p class="meta">⭐ 4.7 • Spicy • Lunch</p>
+          <p class="delivery">Free • Available Today</p>
+        </div>
+      </div>
+    </a>
+
+    <a href="item-details.html?item=2" style="text-decoration:none; color:black;">
+      <div class="food-card">
+        <div class="food-image">
+          <img src="Images\Alfredo.png">
+          <span class="badge">Popular</span>
+          <span class="heart">♡</span>
+        </div>
+        <div class="food-info">
+          <h3>Alfredo Pasta</h3>
+          <p class="meta">⭐ 4.5 • Creamy • Dinner</p>
+          <p class="delivery">Low Stock</p>
+        </div>
+      </div>
+    </a>
+
+    <a href="item-details.html?item=3" style="text-decoration:none; color:black;">
+      <div class="food-card">
+        <div class="food-image">
+          <img src="Images\beefburger.png">
+          <span class="badge">New</span>
+          <span class="heart">♡</span>
+        </div>
+        <div class="food-info">
+          <h3>Beef Burger</h3>
+          <p class="meta">⭐ 4.3 • Grilled • Lunch</p>
+          <p class="delivery">Available Now</p>
+        </div>
+      </div>
+    </a>
+
+    <a href="item-details.html?item=4" style="text-decoration:none; color:black;">
+      <div class="food-card">
+        <div class="food-image">
+          <img src="Images\CaesarSalad.jpg">
+          <span class="badge">Healthy</span>
+          <span class="heart">♡</span>
+        </div>
+        <div class="food-info">
+          <h3>Caesar Salad</h3>
+          <p class="meta">⭐ 4.8 • Fresh • Dinner</p>
+          <p class="delivery">Free</p>
+        </div>
+      </div>
+    </a>
+
+    <a href="item-details.html?item=5" style="text-decoration:none; color:black;">
+      <div class="food-card">
+        <div class="food-image">
+          <img src="Images\Chickentacos.png">
+          <span class="badge">Deal</span>
+          <span class="heart">♡</span>
+        </div>
+        <div class="food-info">
+          <h3>Chicken Tacos</h3>
+          <p class="meta">⭐ 4.6 • Spicy • Snacks</p>
+          <p class="delivery">Limited Time</p>
+        </div>
+      </div>
+    </a>
+
+    <a href="item-details.html?item=6" style="text-decoration:none; color:black;">
+      <div class="food-card">
+        <div class="food-image">
+          <img src="Images\SushiPlatter.jpg">
+          <span class="badge">Top Rated</span>
+          <span class="heart">♡</span>
+        </div>
+        <div class="food-info">
+          <h3>Sushi Platter</h3>
+          <p class="meta">⭐ 4.9 • Fresh • Dinner</p>
+          <p class="delivery">Premium Item</p>
+        </div>
+      </div>
+    </a>
+
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="social-icons">
+      <a href="#"><img src="icons/facebook.png" alt="Facebook" class="icon"></a>
+      <a href="#"><img src="icons/twitter.png" alt="Twitter" class="icon"></a>
+      <a href="#"><img src="icons/instagram.png" alt="Instagram" class="icon"></a>
+    </div>
+
+    <div class="footer-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms</a>
+      <a href="#">Do not sell or share my personal information</a>
+    </div>
+
+    <div class="copyright">
+      © FoodShare.
+    </div>
+  </footer>
+
+  <!-- ✅ Bootstrap JS only -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FoodShare - Checkout</title>
+  <!-- ✅ Mobile responsiveness -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="checkout-page">
+
+  <!-- TOP BAR -->
+  <header class="checkout-header">
+    <a href="items.html" class="back">← Back to store</a>
+    <a href="index.html" class="checkout-logo">
+      <img src="icons/logo.png" alt="logo">
+      <span>FoodShare</span>
+    </a>
+  </header>
+
+  <!-- MAIN -->
+  <div class="checkout-container">
+
+    <!-- LEFT SIDE -->
+    <div class="checkout-left">
+
+      <!-- DELIVERY DETAILS -->
+      <div class="checkout-card">
+        <div class="row space">
+          <h3>Delivery Details</h3>
+          <div class="toggle">
+            <button class="active">Delivery</button>
+            <button>Pickup</button>
+          </div>
+        </div>
+
+        <!-- ADDRESS -->
+        <div class="info-row">
+          <div class="info-left">
+            <img src="icons\Shopping_bag.png" alt="Address Icon" class="option-icon">
+            <div>
+              <p>525 Ballantrae Dr, 405</p>
+              <span>Winnipeg, MB</span>
+            </div>
+          </div>
+          <button class="edit-btn">Edit</button>
+        </div>
+
+        <!-- INSTRUCTIONS -->
+        <div class="info-row">
+          <div class="info-left">
+            <img src="icons\user.png" alt="Instruction Icon" class="option-icon">
+            <div>
+              <p>Meet at my door</p>
+              <span class="green">Add delivery instructions</span>
+            </div>
+          </div>
+          <button class="edit-btn">Edit</button>
+        </div>
+
+        <!-- DELIVERY OPTIONS -->
+        <h4 class="sub-title">Delivery Options</h4>
+
+        <div class="option-card selected">
+          <div class="option-left">
+            <img src="icons/priority.png" alt="Priority Icon" class="option-icon">
+            <div>
+              <strong>Priority</strong>
+              <p>10:39–10:54 PM • Direct to you</p>
+            </div>
+          </div>
+          <span>+ $3.49</span>
+        </div>
+
+        <div class="option-card">
+          <div class="option-left">
+            <img src="icons\Shopping_bag.png" alt="Standard Icon" class="option-icon">
+            <div>
+              <strong>Standard</strong>
+              <p>10:39–10:54 PM</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="option-card">
+          <div class="option-left">
+            <img src="icons\Calender.png" alt="Schedule Icon" class="option-icon">
+            <div>
+              <strong>Schedule</strong>
+              <p>Choose a time</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAYMENT -->
+      <div class="checkout-card payment-box">
+        <h3>
+          <img src="icons/payment.png" alt="Payment Icon" class="option-icon">
+          Payment
+        </h3>
+        <p><strong>FoodShare Cash:</strong> $0.00</p>
+        <span class="small-text">Visa •••• 2138</span>
+      </div>
+
+      <!-- PLACE ORDER -->
+      <button class="place-order">Place Order</button>
+
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="checkout-right">
+
+      <!-- STORE -->
+      <div class="checkout-card">
+        <h4>Warden Community Center</h4>
+        <span class="small-text">Winnipeg, MB</span>
+        <button class="donate-btn full">Donate</button>
+      </div>
+
+      <!-- CART -->
+      <div class="checkout-card">
+        <h4>
+          <img src="icons/Shopping_cart.png" alt="Cart Icon" class="option-icon">
+          Cart Summary (1 Item)
+        </h4>
+      </div>
+
+      <!-- DISCOUNT -->
+      <div class="checkout-card">
+        <h4>
+          <img src="icons/promo.png" alt="Promo Icon" class="option-icon">
+          Discount
+        </h4>
+        <p class="small-text">Add promo code</p>
+      </div>
+
+      <!-- TOTAL -->
+      <div class="checkout-card total-box">
+        <h4>Order Total</h4>
+
+        <div class="price-row">
+          <span>Item Subtotal</span>
+          <span>$0.00</span>
+        </div>
+
+        <div class="price-row">
+          <span>Delivery Fee</span>
+          <span>$5.09</span>
+        </div>
+
+        <div class="price-row">
+          <span>Taxes</span>
+          <span>$3.49</span>
+        </div>
+
+        <!-- TIP SECTION -->
+        <div class="tip-section">
+          <p class="small-text">Add a tip</p>
+
+          <div class="tip-buttons">
+            <button data-tip="15%">15%</button>
+            <button class="active-tip" data-tip="20%">20%</button>
+            <button data-tip="25%">25%</button>
+            <button data-tip="30%">30%</button>
+            <button data-tip="other">Other</button>
+          </div>
+
+          <p class="tip-note">
+            Fresh meals from local kitchens, delivered straight to your door.
+          </p>
+        </div>
+
+        <!-- TOTAL -->
+        <div class="price-row bold">
+          <span>Total</span>
+          <span>$11.08</span>
+        </div>
+
+        <!-- DISCLAIMER -->
+        <p class="disclaimer">
+          If you aren’t home to receive your meal, our couriers will complete a contactless drop-off at your doorstep. By completing this purchase, you acknowledge that the safety and quality of the items become your responsibility upon delivery.
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- JS FOR TIP BUTTONS AND DELIVERY OPTIONS -->
+  <script>
+    // Tip buttons
+    const tipButtons = document.querySelectorAll('.tip-buttons button');
+    tipButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        tipButtons.forEach(btn => btn.classList.remove('active-tip'));
+        button.classList.add('active-tip');
+      });
+    });
+
+    // Delivery option cards
+    const optionCards = document.querySelectorAll('.checkout-left .option-card');
+    optionCards.forEach(card => {
+      card.addEventListener('click', () => {
+        optionCards.forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+      });
+    });
+  </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

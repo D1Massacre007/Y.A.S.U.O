@@ -1,0 +1,105 @@
+body{
+    margin:0;
+    font-family: Arial;
+    background:#eda665;
+}
+
+/* header */
+
+.top-header{
+    text-align:center;
+    background:#f0b07a;
+    padding:10px;
+    color:#d46b00;
+}
+
+/* navbar */
+
+.navbar{
+    background:#cc7300;
+    display:flex;
+    justify-content:center;
+    gap:40px;
+    padding:12px;
+}
+
+.navbar a{
+    color:white;
+    text-decoration:none;
+    font-size:14px;
+}
+
+.navbar .active{
+    background:black;
+    padding:6px 15px;
+    border-radius:3px;
+}
+
+/* course section */
+
+.course-section{
+    padding:40px 80px;
+}
+
+.course-section h3{
+    color:#8a4a00;
+    font-weight:normal;
+}
+
+/* table header */
+
+.table-header{
+    display:grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    background:#d98b52;
+    color:white;
+    padding:10px;
+    border:1px solid white;
+}
+
+.table-header div{
+    text-align:center;
+}
+
+/* form row */
+
+.course-form{
+    margin-top:20px;
+    display:flex;
+    gap:20px;
+    align-items:center;
+}
+
+.course-form input{
+    padding:10px;
+    border-radius:8px;
+    border:2px solid white;
+    background:transparent;
+    width:150px;
+}
+
+.submit-btn{
+    background:black;
+    color:white;
+    border:none;
+    padding:10px 20px;
+    border-radius:5px;
+}
+
+.reset-btn{
+    background:#d98b52;
+    border:1px solid white;
+    color:white;
+    padding:10px 20px;
+    border-radius:5px;
+}
+
+/* footer */
+
+footer{
+    margin-top:120px;
+    background:#cc7300;
+    text-align:center;
+    padding:20px;
+    color:black;
+}

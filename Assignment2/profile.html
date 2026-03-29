@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FoodShare - Profile</title>
+
+  <!-- Bootstrap CSS -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <a href="index.html">
+      <div class="logo">
+        <img src="icons/Logo.png" alt="logo">
+        <span>FoodShare</span>
+      </div>
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="company.html">Company</a>
+      <a href="items.html">Items</a>
+      <a href="profile.html"><b>Profile</b></a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="Login.html">Logout</a>
+    </nav>
+
+    <div class="nav-right">
+      <div class="search-box">
+        <img src="icons/Search_icon.png" class="icon">
+        <input type="text" placeholder="Search Items">
+      </div>
+
+      <button class="donate-btn">Donate</button>
+      <a href="checkout.html">
+        <img src="icons/Shopping_cart.png" class="icon">
+      </a>
+    </div>
+  </header>
+
+  <!-- PROFILE -->
+  <section class="profile-container">
+
+    <div class="profile-wrapper">
+
+      <!-- LEFT SIDEBAR -->
+      <div class="profile-left">
+
+        <img src="icons/user.png" class="profile-avatar" alt="user">
+
+        <h2>John Doe</h2>
+        <p class="profile-role">Premium User</p>
+
+        <button class="profile-btn">Edit Profile</button>
+
+        <div class="profile-stats">
+          <div class="stat-box">
+            <h3>12</h3>
+            <p>Orders</p>
+          </div>
+          <div class="stat-box">
+            <h3>5</h3>
+            <p>Favorites</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT CONTENT -->
+      <div class="profile-right">
+
+        <!-- INFO -->
+        <div class="profile-section">
+          <h2>Personal Information</h2>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Email</label>
+              <p>johndoe@email.com</p>
+            </div>
+
+            <div class="info-item">
+              <label>Phone</label>
+              <p>+1 234 567 890</p>
+            </div>
+
+            <div class="info-item">
+              <label>Address</label>
+              <p>123 Main Street, City</p>
+            </div>
+
+            <div class="info-item">
+              <label>Member Since</label>
+              <p>2025</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- RECENT ORDERS -->
+        <div class="profile-section">
+          <h2>Recent Orders</h2>
+
+          <div class="order-item">
+            <span>Chicken Biryani</span>
+            <span>$12.99</span>
+          </div>
+
+          <div class="order-item">
+            <span>Alfredo Pasta</span>
+            <span>$10.99</span>
+          </div>
+
+          <div class="order-item">
+            <span>Veg Pizza</span>
+            <span>$9.99</span>
+          </div>
+        </div>
+
+        <!-- FAVORITES -->
+        <div class="profile-section">
+          <h2>Favorites</h2>
+
+          <div class="favorites-grid">
+            <div class="fav-card">Biryani</div>
+            <div class="fav-card">Pasta</div>
+            <div class="fav-card">Burger</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

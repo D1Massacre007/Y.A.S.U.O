@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FoodShare - Item Details</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Additional CSS for Item Details Page */
+
+    /* Order Form Note Below Order Card */
+    .order-note {
+      margin-top: 20px;
+      padding: 12px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #555;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .order-note img {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Related Items Cards */
+    #relatedItems a div {
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    #relatedItems a div:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* Adjust padding for main container */
+    .item-details-container {
+      display: flex;
+      gap: 40px;
+      padding: 20px;
+      flex-wrap: wrap;
+    }
+
+    .item-main {
+      flex: 2;
+      min-width: 300px;
+    }
+
+    .item-order-card {
+      flex: 1;
+      min-width: 250px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .item-order-card h3 {
+      margin-top: 0;
+    }
+
+    .item-order-card input[type="number"],
+    .item-order-card textarea {
+      width: 100%;
+      padding: 8px;
+      margin: 6px 0 12px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .order-btn {
+      width: 100%;
+      padding: 12px;
+      background: black;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <a href="index.html">
+      <div class="logo">
+        <img src="icons/Logo.png" alt="logo">
+        <span>FoodShare</span>
+      </div>
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="company.html">Company</a>
+      <a href="items.html">Browse</a>
+      <a href="profile.html">Profile</a>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="Register.html">Register</a>
+    </nav>
+
+    <div class="nav-right">
+      <div class="search-box">
+        <img src="icons/Search_icon.png" class="icon">
+        <input type="text" placeholder="Search">
+      </div>
+      <button class="donate-btn">Donate</button>
+      <a href="checkout.html"><img src="icons/Shopping_cart.png" class="icon"></a>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <div class="item-details-container">
+
+    <!-- LEFT -->
+    <div class="item-main">
+      <img id="itemImage" style="width:100%; height:350px; object-fit:cover; border-radius:12px;">
+      <h1 style="margin-top: 20px;">Item Name</h1>
+      <p class="item-price">$0.00</p>
+      <div id="itemRating" style="color:#f5a623;">⭐ 0.0</div>
+      <p class="item-description">Description here</p>
+
+      <div style="margin-top:20px;">
+        <h3>Details</h3>
+        <ul style="list-style:none; padding:0;">
+          <li id="itemCategory">✔ Category:</li>
+          <li>✔ Allergens: None</li>
+          <li>✔ Provider: FoodShare</li>
+          <li>✔ Availability: Available</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="item-order-card">
+      <h3>Order</h3>
+
+      <label>Quantity</label>
+      <input type="number" id="qty" value="1" min="1">
+
+      <label>Special Instructions</label>
+      <textarea placeholder="Add notes..."></textarea>
+
+      <button class="order-btn">Add to Cart</button>
+
+      <div style="margin-top:20px;">
+        <p>Subtotal: <span id="subtotal">$0.00</span></p>
+        <p>Tax: <span id="tax">$0.00</span></p>
+        <p>Total: <span id="total">$0.00</span></p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BELOW ORDER FORM NOTE -->
+  <div class="order-note">
+    <img src="icons/checked.png" alt="check icon">
+    <span>Free delivery on orders over $25 • 100% Satisfaction Guaranteed</span>
+  </div>
+
+  <!-- RELATED ITEMS -->
+  <h2 style="margin:40px 20px;">You may also like</h2>
+  <div id="relatedItems" style="
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap:20px;
+    padding:0 20px 40px;
+  "></div>
+
+  <!-- SCRIPT -->
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const itemId = params.get("item");
+
+    const items = {
+      1: {name: "Chicken Biryani", price: 12.99, desc: "Aromatic basmati rice cooked with spicy chicken.", image: "Images/Chicken-Biryani.jpg", category: "Lunch", rating: "⭐ 4.7 (210+)"},
+      2: {name: "Alfredo Pasta", price: 10.99, desc: "Creamy white sauce pasta with parmesan.", image: "Images/Alfredo.png", category: "Dinner", rating: "⭐ 4.5 (120+)"},
+      3: {name: "Beef Burger", price: 9.99, desc: "Juicy grilled burger with toppings.", image: "Images/beefburger.png", category: "Lunch", rating: "⭐ 4.3 (90+)"},
+      4: {name: "Caesar Salad", price: 8.99, desc: "Fresh greens with Caesar dressing.", image: "Images/CaesarSalad.jpg", category: "Dinner", rating: "⭐ 4.8 (300+)"},
+      5: {name: "Chicken Tacos", price: 7.99, desc: "Soft tacos with seasoned chicken.", image: "Images/Chickentacos.png", category: "Snacks", rating: "⭐ 4.6 (180+)"},
+      6: {name: "Sushi Platter", price: 14.99, desc: "Fresh assorted sushi.", image: "Images/SushiPlatter.jpg", category: "Dinner", rating: "⭐ 4.9 (500+)"},
+      7: {name: "Pancake Breakfast", price: 6.99, desc: "Fluffy pancakes with syrup.", image: "Images/Pancake.jpg", category: "Breakfast", rating: "⭐ 4.4 (75+)"},
+      8: {name: "Pepperoni Pizza", price: 11.99, desc: "Hot cheesy pizza.", image: "Images/pizza.jpg", category: "Lunch", rating: "⭐ 4.7 (220+)"},
+      9: {name: "Pasta Salad", price: 9.49, desc: "Fresh pasta salad with veggies.", image: "Images/PastaSalad.jpg", category: "Lunch", rating: "⭐ 4.5 (100+)"},
+      10: {name: "Veggie Wrap", price: 8.49, desc: "Healthy gluten-free wrap.", image: "Images/VeggieWrap.jpg", category: "Snacks", rating: "⭐ 4.6 (90+)"},
+      11: {name: "Steak Sandwich", price: 13.99, desc: "Grilled steak sandwich with toppings.", image: "Images/SteakSandwich.jpg", category: "Dinner", rating: "⭐ 4.8 (110+)"},
+      12: {name: "Chocolate Cake", price: 6.99, desc: "Rich chocolate layered cake.", image: "Images/Chocolatecake.jpg", category: "Dessert", rating: "⭐ 4.9 (200+)"}
+    };
+
+    if (items[itemId]) {
+      const item = items[itemId];
+
+      document.querySelector("h1").textContent = item.name;
+      document.querySelector(".item-price").textContent = "$" + item.price.toFixed(2);
+      document.querySelector(".item-description").textContent = item.desc;
+      document.getElementById("itemImage").src = item.image;
+      document.getElementById("itemCategory").textContent = "✔ Category: " + item.category;
+      document.getElementById("itemRating").innerHTML = item.rating;
+
+      const qty = document.getElementById("qty");
+      const subtotal = document.getElementById("subtotal");
+      const tax = document.getElementById("tax");
+      const total = document.getElementById("total");
+
+      function updatePrice() {
+        const q = parseInt(qty.value) || 1;
+        const sub = item.price * q;
+        const t = sub * 0.13;
+
+        subtotal.textContent = "$" + sub.toFixed(2);
+        tax.textContent = "$" + t.toFixed(2);
+        total.textContent = "$" + (sub + t).toFixed(2);
+      }
+
+      qty.addEventListener("input", updatePrice);
+      updatePrice();
+    }
+
+    // RELATED ITEMS
+    const related = document.getElementById("relatedItems");
+    for (let id in items) {
+      if (id != itemId) {
+        const i = items[id];
+        related.innerHTML += `
+          <a href="item-details.html?item=${id}" style="text-decoration:none; color:black;">
+            <div style="background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+              <img src="${i.image}" style="width:100%; height:150px; object-fit:cover;">
+              <div style="padding:10px;">
+                <h4>${i.name}</h4>
+                <p style="color:gray;">${i.rating}</p>
+                <p style="font-weight:bold;">$${i.price}</p>
+              </div>
+            </div>
+          </a>
+        `;
+      }
+    }
+  </script>
+
+</body>
+</html>

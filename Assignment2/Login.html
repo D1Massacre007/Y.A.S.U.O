@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FoodShare - Login</title>
+  
+  <!-- Bootstrap CSS -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="auth-page">
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <a href="index.html">
+      <div class="logo">
+        <img src="icons/Logo.png" alt="logo">
+        <span>FoodShare</span>
+      </div>
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="company.html">Company</a>
+      <a href="items.html">Items</a>
+      <a href="profile.html">Profile</a>
+      <a href="Register.html">Register</a>
+    </nav>
+
+    <div class="nav-right">
+      <div class="search-box">
+        <img src="icons/Search_icon.png" alt="search" class="icon">
+        <input type="text" placeholder="Search Items">
+      </div>
+
+      <button class="donate-btn">Donate</button>
+
+      <img src="icons/Shopping_cart.png" alt="cart" class="icon">
+    </div>
+  </header>
+
+  <!-- LOGIN FORM -->
+  <section class="register-container">
+    <div class="register-box">
+      <h2>Login</h2>
+
+      <form>
+        <label>Email</label>
+        <input type="email" placeholder="Enter your email" required>
+
+        <label>Password</label>
+        <input type="password" placeholder="Enter your password" required>
+
+        <button type="submit">Login</button>
+
+        <p class="login-link">
+          Don't have an account? <a href="Register.html">Register</a>
+        </p>
+      </form>
+    </div>
+  </section>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

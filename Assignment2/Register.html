@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FoodShare - Register</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="styles.css">
+
+ 
+</head>
+
+<body class="auth-page">
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <a href="index.html">
+      <div class="logo">
+        <img src="icons/Logo.png" alt="logo">
+        <span>FoodShare</span>
+      </div>
+    </a>
+
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="company.html">Company</a>
+      <a href="items.html">Items</a>
+      <a href="profile.html">Profile</a>
+      <a href="Register.html"><b>Register</b></a>
+    </nav>
+  </header>
+
+  <!-- REGISTER FORM -->
+  <section class="register-container">
+    <div class="register-box">
+      <h2>Create Account</h2>
+
+      <form>
+
+        <!-- ACCOUNT TYPE -->
+        <label>Account Type</label>
+        <div class="account-type">
+          
+          <label class="type-card active">
+            <input type="radio" name="role" value="user" checked>
+            <div class="card-content">
+              <span class="radio-circle"></span>
+              <span>User</span>
+            </div>
+          </label>
+
+          <label class="type-card">
+            <input type="radio" name="role" value="business">
+            <div class="card-content">
+              <span class="radio-circle"></span>
+              <span>Business</span>
+            </div>
+          </label>
+
+        </div>
+
+        <label>Full Name</label>
+        <input type="text" placeholder="Enter your name" required>
+
+        <label>Email</label>
+        <input type="email" placeholder="Enter your email" required>
+
+        <label>Password</label>
+        <input type="password" placeholder="Enter your password" required>
+
+        <label>Confirm Password</label>
+        <input type="password" placeholder="Confirm your password" required>
+
+        <button type="submit">Register</button>
+
+        <p class="login-link">
+          Already have an account? <a href="Login.html">Login</a>
+        </p>
+      </form>
+    </div>
+  </section>
+
+  <!-- SCRIPT FOR TOGGLE -->
+  <script>
+    const radios = document.querySelectorAll('.type-card input');
+
+    radios.forEach(input => {
+      input.addEventListener('change', () => {
+        document.querySelectorAll('.type-card').forEach(card => {
+          card.classList.remove('active');
+        });
+        input.closest('.type-card').classList.add('active');
+      });
+    });
+  </script>
+
+</body>
+</html>
