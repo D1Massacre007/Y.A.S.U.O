@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Sign Up - TorontoRiders</title>
+	<link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 50'%3E%3Ctext x='0' y='40' font-size='40' font-family='Arial' fill='%23FFFFFF'%3EToronto%3Ctspan fill='%23FF6B35'%3ERiders%3C/tspan%3E.ca%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+	<nav class="navbar">
+		<div class="nav-container">
+			<div class="nav-logo">
+				<h1>Toronto<span class="orange">Riders</span>.ca</h1>
+			</div>
+			<div class="nav-links">
+				<a href="index.html">Home</a>
+				<a href="company.html">Company</a>
+				<a href="cars.html">Cars</a>
+				<a href="booking.html">Booking</a>
+			</div>
+			<div class="nav-auth" id="navAuth">
+				<a class="btn-primary" href="sign_in.html">Sign In</a>
+				<a class="btn-primary" href="sign_up.html">Sign Up</a>
+			</div>
+			<div class="nav-user" id="navUser" style="display: none;">
+				<span class="user-email" id="userEmail"></span>
+				<button class="btn-secondary" onclick="handleLogout()">Logout</button>
+			</div>
+		</div>
+	</nav>
+
+	<main class="container" style="padding:2rem 0 4rem">
+		<div class="auth-wrapper">
+			<div class="auth-form-container">
+				<div class="auth-header">
+					<a href="index.html" style="text-decoration: none; color: inherit; cursor: pointer;">
+						<h2>Create Account</h2>
+						<p>Join TorontoRiders and start renting today</p>
+					</a>
+				</div>
+
+				<form class="auth-form" id="signUpForm">
+					<div class="form-group">
+						<label>Account Type</label>
+						<div class="account-type-options">
+							<label class="radio-label">
+								<input type="radio" name="accountType" value="customer" checked onchange="toggleBusinessField()">
+								<span>Customer</span>
+							</label>
+							<label class="radio-label">
+								<input type="radio" name="accountType" value="business" onchange="toggleBusinessField()">
+								<span>Business</span>
+							</label>
+						</div>
+					</div>
+
+					<!-- Business Name -->
+					<div class="form-group" id="businessNameGroup" style="display: none;">
+						<label for="businessname">Business Name</label>
+						<input 
+							type="text" 
+							id="businessname" 
+							name="businessname" 
+							placeholder="Your Business Name" 
+						>
+					</div>
+
+					<!-- Business Logo -->
+					<div class="form-group" id="businessLogoGroup" style="display: none;">
+						<label for="businessLogo">Business Logo</label>
+						<div id="logoUploadArea" style="
+							border: 2px dashed #e0e0e0;
+							border-radius: 8px;
+							padding: 1.5rem;
+							text-align: center;
+							cursor: pointer;
+							transition: border-color 0.2s;
+						" onclick="document.getElementById('businessLogo').click()"
+						   onmouseover="this.style.borderColor='#ff6b35'"
+						   onmouseout="this.style.borderColor='#e0e0e0'">
+							<input type="file" id="businessLogo" name="businessLogo" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
+							<div id="logoPlaceholder">
+								<svg style="width:40px;height:40px;fill:#ccc;margin-bottom:0.5rem;" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+								<p style="color:#aaa;font-size:0.88rem;margin:0;">Click to upload your logo</p>
+								<p style="color:#ccc;font-size:0.78rem;margin:0.25rem 0 0;">PNG, JPG, SVG up to 2MB</p>
+							</div>
+							<div id="logoPreview" style="display:none;">
+								<img id="logoPreviewImg" style="max-height:80px;max-width:200px;object-fit:contain;border-radius:6px;" src="" alt="Logo preview">
+								<p id="logoFileName" style="color:#888;font-size:0.8rem;margin:0.5rem 0 0;"></p>
+								<button type="button" onclick="removeLogo(event)" style="
+									margin-top:0.5rem;
+									background:none;
+									border:1px solid #e0e0e0;
+									border-radius:4px;
+									padding:0.25rem 0.75rem;
+									font-size:0.8rem;
+									color:#888;
+									cursor:pointer;
+								">Remove</button>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="fullname">Full Name</label>
+						<input 
+							type="text" 
+							id="fullname" 
+							name="fullname" 
+							placeholder="John Doe" 
+							required
+						>
+					</div>
+
+					<div class="form-group">
+						<label for="signup-email">Email Address</label>
+						<input 
+							type="email" 
+							id="signup-email" 
+							name="email" 
+							placeholder="you@example.com" 
+							required
+						>
+					</div>
+
+					<div class="form-group">
+						<label for="phone">Phone Number</label>
+						<input 
+							type="tel" 
+							id="phone" 
+							name="phone" 
+							placeholder="+1 (416) 555-0123" 
+							required
+						>
+					</div>
+
+					<div class="form-group">
+						<label for="signup-password">Password</label>
+						<div class="password-input-wrapper">
+							<input 
+								type="password" 
+								id="signup-password" 
+								name="password" 
+								placeholder="Create a strong password" 
+								oninput="checkPasswordStrength()"
+								required
+							>
+							<button type="button" class="toggle-password" onclick="toggleSignUpPassword()">
+								<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+									<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+								</svg>
+							</button>
+						</div>
+						<div id="passwordStrength" class="password-strength" style="display: none; margin-top: 0.5rem;">
+							<div class="strength-bar">
+								<div id="strengthFill" class="strength-fill"></div>
+							</div>
+							<span id="strengthText" class="strength-text"></span>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="confirm-password">Confirm Password</label>
+						<div class="password-input-wrapper">
+							<input 
+								type="password" 
+								id="confirm-password" 
+								name="confirm-password" 
+								placeholder="Confirm your password" 
+								oninput="checkPasswordMatch()"
+								required
+							>
+							<button type="button" class="toggle-password" onclick="toggleConfirmPassword()">
+								<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+									<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+								</svg>
+							</button>
+						</div>
+						<div id="passwordMatch" style="display: none; margin-top: 0.5rem; font-size: 0.9rem;"></div>
+					</div>
+
+					<div class="form-options">
+						<label class="checkbox-label">
+							<input type="checkbox" name="terms" required>
+							<span>I agree to the Terms of Service</span>
+						</label>
+					</div>
+
+					<button type="submit" class="btn-primary btn-block">Create Account</button>
+				</form>
+
+				<div class="auth-divider">
+					<span>Already have an account?</span>
+				</div>
+
+				<a href="sign_in.html" class="btn-primary btn-block">Sign In</a>
+			</div>
+		</div>
+	</main>
+
+	<footer class="footer">
+		<div class="footer-container">
+			<div class="footer-section footer-contact">
+				<h3>Contact Us</h3>
+				<div class="contact-item">
+					<svg class="contact-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1112 6a2.5 2.5 0 010 5.5z"/></svg>
+					<div class="contact-text">123 Queen Street West<br>Toronto, ON M5H 2M9<br>Canada</div>
+				</div>
+				<div class="contact-item">
+					<svg class="contact-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6.6 10.8a15.05 15.05 0 006.6 6.6l2.2-2.2a1 1 0 01.9-.25c1 .25 2 .4 3 .4a1 1 0 011 1V20a1 1 0 01-1 1C9.4 21 3 14.6 3 6a1 1 0 011-1h2.5a1 1 0 011 1c0 1 .15 2 .4 3 .12.4 0 .86-.3 1.2l-2 2z"/></svg>
+					<div class="contact-text">+1 (416) 555-0123</div>
+				</div>
+				<div class="contact-item">
+					<svg class="contact-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+					<div class="contact-text"><a href="mailto:info@torontoriders.ca">info@torontoriders.ca</a></div>
+				</div>
+			</div>
+			<div class="footer-section">
+				<h3>About Toronto Riders</h3>
+				<p style="max-width:420px">Your trusted car rental service in Toronto. We provide quality vehicles for every need, from daily commutes to special occasions.</p>
+			</div>
+			<div class="footer-section">
+				<h3>Follow Us</h3>
+				<div class="social-links">
+					<a class="social-link" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+						<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22 12a10 10 0 10-11.5 9.9v-7h-2.2V12h2.2V9.8c0-2.2 1.3-3.4 3.2-3.4.9 0 1.8.16 1.8.16v2h-1c-1 0-1.3.62-1.3 1.3V12h2.3l-.37 2.9h-1.93v7A10 10 0 0022 12z"/></svg>
+					</a>
+					<a class="social-link" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+						<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22 5.9c-.6.3-1.3.6-2 .7.7-.4 1.3-1 1.6-1.8-.7.4-1.5.7-2.4.9A4.1 4.1 0 0015.5 5c-2.3 0-4.1 1.9-4.1 4.2 0 .3 0 .7.1 1-3.4-.2-6.4-1.9-8.4-4.6-.4.6-.6 1.3-.6 2 0 1.4.7 2.6 1.8 3.3-.6 0-1.2-.2-1.7-.4v.1c0 2 1.4 3.6 3.3 4-.3.1-.6.1-.9.1-.2 0-.4 0-.6-.1.4 1.3 1.6 2.2 3 2.2A8.4 8.4 0 012 19.5 11.9 11.9 0 008 21c7.6 0 11.7-6.3 11.7-11.7v-.5c.8-.6 1.4-1.3 1.9-2.1-.7.3-1.5.6-2.3.6z"/></svg>
+					</a>
+					<a class="social-link" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+						<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 2h10a5 5 0 015 5v10a5 5 0 01-5 5H7a5 5 0 01-5-5V7a5 5 0 015-5zm5 5.8A4.2 4.2 0 1016.2 12 4.2 4.2 0 0012 7.8zm6.4-1.8a1.2 1.2 0 11-1.2 1.2 1.2 1.2 0 011.2-1.2z"/></svg>
+					</a>
+				</div>
+			</div>
+		</div>
+		<div class="footer-bottom">
+			<p>&copy; 2025 TorontoRiders.ca. All rights reserved.</p>
+		</div>
+	</footer>
+
+	<script src="script.js"></script>
+
+	<script>
+		function toggleBusinessField() {
+			const isBusiness = document.querySelector('input[name="accountType"]:checked').value === 'business';
+			document.getElementById('businessNameGroup').style.display = isBusiness ? 'block' : 'none';
+			document.getElementById('businessLogoGroup').style.display = isBusiness ? 'block' : 'none';
+		}
+
+		function handleLogoUpload(event) {
+			const file = event.target.files[0];
+			if (!file) return;
+
+			if (file.size > 2 * 1024 * 1024) {
+				alert('Logo must be under 2MB');
+				return;
+			}
+
+			const reader = new FileReader();
+			reader.onload = function(e) {
+				const img = new Image();
+				img.onload = function() {
+					const canvas = document.createElement('canvas');
+					const MAX = 300;
+					let w = img.width, h = img.height;
+					if (w > MAX || h > MAX) {
+						if (w > h) { h = h * MAX / w; w = MAX; }
+						else { w = w * MAX / h; h = MAX; }
+					}
+					canvas.width = w;
+					canvas.height = h;
+					canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+					const compressed = canvas.toDataURL('image/jpeg', 0.7);
+
+					document.getElementById('logoPlaceholder').style.display = 'none';
+					document.getElementById('logoPreview').style.display = 'block';
+					document.getElementById('logoPreviewImg').src = compressed;
+					document.getElementById('logoFileName').textContent = file.name;
+				};
+				img.src = e.target.result;
+			};
+			reader.readAsDataURL(file);
+		}
+
+		function removeLogo(event) {
+			event.stopPropagation();
+			document.getElementById('businessLogo').value = '';
+			document.getElementById('logoPlaceholder').style.display = 'block';
+			document.getElementById('logoPreview').style.display = 'none';
+			document.getElementById('logoPreviewImg').src = '';
+		}
+
+		const signUpForm = document.getElementById('signUpForm');
+
+		signUpForm.addEventListener('submit', async (e) => {
+			e.preventDefault();
+
+			const fullName = document.getElementById('fullname').value.trim();
+			const email = document.getElementById('signup-email').value.trim();
+			const phone = document.getElementById('phone').value.trim();
+			const password = document.getElementById('signup-password').value;
+			const accountType = document.querySelector('input[name="accountType"]:checked').value;
+			const businessName = document.getElementById('businessname').value.trim();
+
+			// Use the compressed preview image instead of re-reading the raw file
+			let logoBase64 = null;
+			const previewImg = document.getElementById('logoPreviewImg');
+			if (previewImg.src && previewImg.src !== window.location.href) {
+				logoBase64 = previewImg.src;
+			}
+
+			const data = {
+				fullName,
+				email,
+				phone,
+				password,
+				accountType,
+				businessName: businessName || null,
+				logo: logoBase64 || null
+			};
+
+			try {
+				const res = await fetch('http://localhost:5000/api/auth/signup', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(data)
+				});
+
+				const result = await res.json();
+
+				if (res.ok) {
+					alert('Account created successfully!');
+					window.location.href = 'sign_in.html';
+				} else {
+					alert(result.error || 'Failed to create account');
+				}
+			} catch (err) {
+				console.error(err);
+				alert('Error connecting to server');
+			}
+		});
+	</script>
+</body>
+</html>

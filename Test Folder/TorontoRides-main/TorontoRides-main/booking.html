@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Toronto Riders - Booking</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 50'%3E%3Ctext x='0' y='40' font-size='40' font-family='Arial' fill='%23FFFFFF'%3EToronto%3Ctspan fill='%23FF6B35'%3ERiders%3C/tspan%3E.ca%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h1>Toronto<span class="orange">Riders</span>.ca</h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="company.html">Company</a>
+                <a href="cars.html">Cars</a>
+                <a href="booking.html" class="active" id="bookingLink">Booking</a>
+                <a href="my_rentals.html" id="myRentalsLink" style="display: none;">My Rentals</a>
+                <a href="admin.html" id="adminLink" style="display: none;">Admin Panel</a>
+            </div>
+            <div class="nav-auth" id="navAuth">
+                <button class="btn-secondary" onclick="window.location.href='sign_in.html'">Sign In</button>
+                <button class="btn-primary" onclick="window.location.href='sign_up.html'">Sign Up</button>
+            </div>
+            <div class="nav-user" id="navUser" style="display: none;">
+                <span class="user-email" id="userEmail"></span>
+                <button class="btn-secondary" onclick="handleLogout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="booking-hero" id="bookingHero">
+        <h1>Book Your Car</h1>
+        <p>Reserve your perfect vehicle in just a few minutes</p>
+    </section>
+
+    <section class="booking-wrapper">
+        <div class="booking-container">
+            <!-- Booking Form -->
+            <div class="booking-form-section">
+                <h2>Booking Details</h2>
+                <input type="hidden" id="vehicleId" name="vehicleId">
+                <form id="bookingForm">
+                    <!-- Pickup Information -->
+                    <div class="form-section-title">Pickup Information</div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="pickupDate">Pickup Date *</label>
+                            <input type="date" id="pickupDate" name="pickupDate" required>
+                            <span id="pickupDateError" class="error-message"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="pickupTime">Pickup Time *</label>
+                            <input type="time" id="pickupTime" name="pickupTime" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pickupLocation">Pickup Location *</label>
+                        <select id="pickupLocation" name="pickupLocation" required>
+                            <option value="">Select a pickup location</option>
+                            <option value="downtown">Downtown Toronto - 123 Queen Street West</option>
+                            <option value="airport">Toronto Pearson Airport - Terminal 1</option>
+                            <option value="eastwyck">East York - 45 Overland Drive</option>
+                            <option value="north">North York - 567 Sheppard Avenue</option>
+                            <option value="scarborough">Scarborough - 890 Kennedy Road</option>
+                        </select>
+                    </div>
+
+                    <!-- Return Information -->
+                    <div class="form-section-title">Return Information</div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="returnDate">Return Date *</label>
+                            <input type="date" id="returnDate" name="returnDate" required>
+                            <span id="returnDateError" class="error-message"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="returnTime">Return Time *</label>
+                            <input type="time" id="returnTime" name="returnTime" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="returnLocation">Return Location *</label>
+                        <select id="returnLocation" name="returnLocation" required>
+                            <option value="">Select a return location</option>
+                            <option value="downtown">Downtown Toronto - 123 Queen Street West</option>
+                            <option value="airport">Toronto Pearson Airport - Terminal 1</option>
+                            <option value="eastwyck">East York - 45 Overland Drive</option>
+                            <option value="north">North York - 567 Sheppard Avenue</option>
+                            <option value="scarborough">Scarborough - 890 Kennedy Road</option>
+                        </select>
+                    </div>
+
+                    <!-- Driver Information -->
+                    <div class="form-section-title">Driver Information</div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name *</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name *</label>
+                            <input type="text" id="lastName" name="lastName" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number *</label>
+                            <input type="tel" id="phone" name="phone" placeholder="(416) 555-0123" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="licenseNumber">Driver's License Number *</label>
+                        <input type="text" id="licenseNumber" name="licenseNumber" required>
+                    </div>
+
+                    <!-- Additional Options -->
+                    <div class="form-section-title">Additional Options</div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="gps" name="gps" value="yes">
+                        <label for="gps">GPS Navigation (+$5.00/day)</label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="insurance" name="insurance" value="yes">
+                        <label for="insurance">Damage Waiver Insurance (+$15.00/day)</label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="childSeat" name="childSeat" value="yes">
+                        <label for="childSeat">Child Safety Seat (+$8.00/day)</label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="extraDriver" name="extraDriver" value="yes">
+                        <label for="extraDriver">Additional Driver (+$10.00/day)</label>
+                    </div>
+
+                    <!-- Special Requests -->
+                    <div class="form-section-title">Special Requests</div>
+
+                    <div class="form-group">
+                        <label for="specialRequests">Any Special Requests?</label>
+                        <textarea id="specialRequests" name="specialRequests" placeholder="Let us know if you have any special requests..."></textarea>
+                    </div>
+
+                    <!-- Payment Information -->
+                    <div class="form-section-title">Payment Information</div>
+
+                    <div class="form-group">
+                        <label for="cardNumber">Card Number *</label>
+                        <input type="text" id="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cardName">Cardholder Name *</label>
+                            <input type="text" id="cardName" name="cardName" placeholder="John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cardExpiry">Expiry Date *</label>
+                            <input type="text" id="cardExpiry" name="cardExpiry" placeholder="MM/YY" maxlength="5" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cardCVV">CVV *</label>
+                            <input type="text" id="cardCVV" name="cardCVV" placeholder="123" maxlength="4" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="billingZip">Billing Zip Code *</label>
+                            <input type="text" id="billingZip" name="billingZip" placeholder="M5H 2M9" required>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; background: #f8f9fa; border-radius: 8px; margin-top: 0.5rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#6c757d" stroke-width="2"/>
+                            <path d="M12 8V12" stroke="#6c757d" stroke-width="2" stroke-linecap="round"/>
+                            <circle cx="12" cy="16" r="1" fill="#6c757d"/>
+                        </svg>
+                        <span style="font-size: 0.85rem; color: #6c757d;">Demo mode: Any card details will be accepted</span>
+                    </div>
+
+                    <!-- Terms & Conditions -->
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="agreeTerms" name="agreeTerms" required>
+                        <label for="agreeTerms">I agree to the <a href="#" style="color: var(--color-orange); text-decoration: none;">Terms & Conditions</a> *</label>
+                    </div>
+
+                    <button type="submit" class="btn-book">Complete Booking</button>
+                    <span id="formError" class="error-message"></span>
+                    <span id="formSuccess" class="success-message"></span>
+                </form>
+            </div>
+
+            <!-- Booking Summary -->
+            <aside class="booking-summary">
+                <h3>Booking Summary</h3>
+
+                <div id="selectedVehicle">
+                    <p style="text-align: center; color: var(--color-gray-dark); font-size: 0.95rem;">
+                        Select a vehicle from our <a href="cars.html" style="color: var(--color-orange); text-decoration: none;">Cars</a> page
+                    </p>
+                </div>
+
+                <div class="summary-item">
+                    <span class="summary-item-label">Pickup Date</span>
+                    <span class="summary-item-value" id="summaryPickupDate">—</span>
+                </div>
+
+                <div class="summary-item">
+                    <span class="summary-item-label">Return Date</span>
+                    <span class="summary-item-value" id="summaryReturnDate">—</span>
+                </div>
+
+                <div class="summary-item">
+                    <span class="summary-item-label">Rental Duration</span>
+                    <span class="summary-item-value" id="summaryDuration">—</span>
+                </div>
+
+                <div class="summary-divider"></div>
+
+                <div class="summary-item">
+                    <span class="summary-item-label">Daily Rate</span>
+                    <span class="summary-item-value" id="summaryDailyRate">$0.00</span>
+                </div>
+
+                <div class="summary-item">
+                    <span class="summary-item-label">Subtotal</span>
+                    <span class="summary-item-value" id="summarySubtotal">$0.00</span>
+                </div>
+
+                <div class="summary-item">
+                    <span class="summary-item-label">Add-ons & Extras</span>
+                    <span class="summary-item-value" id="summaryAddOns">$0.00</span>
+                </div>
+
+                <div class="summary-item">
+                    <span class="summary-item-label">Taxes & Fees (13%)</span>
+                    <span class="summary-item-value" id="summaryTaxes">$0.00</span>
+                </div>
+
+                <div class="summary-divider"></div>
+
+                <div class="summary-total">
+                    <span class="summary-total-label">Total Price</span>
+                    <span class="summary-total-value" id="summaryTotal">$0.00</span>
+                </div>
+
+                <p style="font-size: 0.85rem; color: var(--color-gray-dark); text-align: center; margin: 1rem 0 0;">
+                    All prices in CAD<br>
+                    Free cancellation up to 24 hours before pickup
+                </p>
+            </aside>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section footer-contact">
+                <h3>Contact Us</h3>
+                <div class="contact-item">
+                    <svg class="contact-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1112 6a2.5 2.5 0 010 5.5z"/></svg>
+                    <div class="contact-text">123 Queen Street West<br>Toronto, ON M5H 2M9<br>Canada</div>
+                </div>
+                <div class="contact-item">
+                    <svg class="contact-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6.6 10.8a15.05 15.05 0 006.6 6.6l2.2-2.2a1 1 0 01.9-.25c1 .25 2 .4 3 .4a1 1 0 011 1V20a1 1 0 01-1 1C9.4 21 3 14.6 3 6a1 1 0 011-1h2.5a1 1 0 011 1c0 1 .15 2 .4 3 .12.4 0 .86-.3 1.2l-2 2z"/></svg>
+                    <div class="contact-text">+1 (416) 555-0123</div>
+                </div>
+                <div class="contact-item">
+                    <svg class="contact-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                    <div class="contact-text"><a href="mailto:info@torontoriders.ca">info@torontoriders.ca</a></div>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h3>About Toronto Riders</h3>
+                <p style="max-width:420px">Your trusted car rental service in Toronto. We provide quality vehicles for every need, from daily commutes to special occasions.</p>
+            </div>
+
+            <div class="footer-section">
+                <h3>Follow Us</h3>
+                <div class="social-links">
+                    <a class="social-link" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22 12a10 10 0 10-11.5 9.9v-7h-2.2V12h2.2V9.8c0-2.2 1.3-3.4 3.2-3.4.9 0 1.8.16 1.8.16v2h-1c-1 0-1.3.62-1.3 1.3V12h2.3l-.37 2.9h-1.93v7A10 10 0 0022 12z"/></svg>
+                    </a>
+                    <a class="social-link" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22 5.9c-.6.3-1.3.6-2 .7.7-.4 1.3-1 1.6-1.8-.7.4-1.5.7-2.4.9A4.1 4.1 0 0015.5 5c-2.3 0-4.1 1.9-4.1 4.2 0 .3 0 .7.1 1-3.4-.2-6.4-1.9-8.4-4.6-.4.6-.6 1.3-.6 2 0 1.4.7 2.6 1.8 3.3-.6 0-1.2-.2-1.7-.4v.1c0 2 1.4 3.6 3.3 4-.3.1-.6.1-.9.1-.2 0-.4 0-.6-.1.4 1.3 1.6 2.2 3 2.2A8.4 8.4 0 012 19.5 11.9 11.9 0 008 21c7.6 0 11.7-6.3 11.7-11.7v-.5c.8-.6 1.4-1.3 1.9-2.1-.7.3-1.5.6-2.3.6z"/></svg>
+                    </a>
+                    <a class="social-link" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 2h10a5 5 0 015 5v10a5 5 0 01-5 5H7a5 5 0 01-5-5V7a5 5 0 015-5zm5 5.8A4.2 4.2 0 1016.2 12 4.2 4.2 0 0012 7.8zm6.4-1.8a1.2 1.2 0 11-1.2 1.2 1.2 1.2 0 011.2-1.2z"/></svg>
+                    </a>
+                    <a class="social-link" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4.98 3.5A2.5 2.5 0 004.98 8.5 2.5 2.5 0 004.98 3.5zM3 9h4v12H3zM9 9h3.6v1.7h.1c.5-.9 1.7-1.7 3.4-1.7 3.6 0 4.3 2.4 4.3 5.6V21h-4v-5.1c0-1.2 0-2.7-1.6-2.7-1.6 0-1.8 1.2-1.8 2.6V21H9z"/></svg>
+                    </a>
+                    <a class="social-link" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 15l5.2-3L10 9v6zm11-6.1s0-1-.4-1.5c-.4-.9-1.5-1-1.9-1.1C16.9 6 12 6 12 6s-4.9 0-6.7.3c-.4 0-1.5.1-1.9 1.1C3 7.9 3 9 3 9s0 1 .4 1.5c.4.9 1.5 1 1.9 1.1C7.1 12 12 12 12 12s4.9 0 6.7-.3c.4 0 1.5-.1 1.9-1.1.3-.5.4-1.5.4-1.5z"/></svg>
+                    </a>
+                    <a class="social-link" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M16 3h2v6c1.1 0 2 .9 2 2 0 4-4 6-8 6s-6.8-2.1-6.8-6.5v-1.5h2V13c0 2.3 2.2 3.5 4.8 3.5 1.9 0 3.9-.6 3.9-2.7V9h-1c-1.7 0-3-.9-3-2V3z"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 TorontoRiders.ca. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- ONLY SHOWING CHANGED SCRIPT PART — EVERYTHING ELSE IN YOUR FILE STAYS EXACTLY SAME -->
+
+<script>
+let vehiclesFromDB = [];
+let selectedVehicle = null;
+
+/* =========================
+   LOAD VEHICLES FROM DB
+========================= */
+async function loadVehiclesFromDB() {
+    try {
+        const res = await fetch('http://localhost:5000/api/vehicles');
+        vehiclesFromDB = await res.json();
+        console.log("DB Vehicles:", vehiclesFromDB);
+    } catch (err) {
+        console.error("Failed to load vehicles:", err);
+    }
+}
+
+/* =========================
+   INIT
+========================= */
+document.addEventListener('DOMContentLoaded', async () => {
+
+    const storedVehicle = sessionStorage.getItem('selectedVehicle');
+
+    if (!storedVehicle) {
+        console.error("No vehicle found in sessionStorage");
+        return;
+    }
+
+    const v = JSON.parse(storedVehicle);
+    console.log("Vehicle from session:", v);
+
+    await loadVehiclesFromDB();
+
+    // Match with DB (latest data)
+    const dbVehicle = vehiclesFromDB.find(x => String(x.id) === String(v.id));
+
+    console.log("Matched DB vehicle:", dbVehicle);
+
+    // ✅ Price priority: DB → session → 0
+    const price = dbVehicle?.pricePerDay || v.pricePerDay || 0;
+
+    selectedVehicle = {
+        id: v.id,
+        name: v.name || `${v.make || ''} ${v.model || ''}`.trim(),
+        make: v.make,
+        model: v.model,
+        category: v.category,
+        dailyRate: Number(price)
+    };
+
+    console.log("Final selected vehicle:", selectedVehicle);
+
+    const vehicleContainer = document.getElementById('selectedVehicle');
+    if (vehicleContainer) {
+        vehicleContainer.innerHTML = `
+            <div style="text-align:center;">
+                <h4>${selectedVehicle.name}</h4>
+                <p>${selectedVehicle.make || ''} ${selectedVehicle.model || ''}</p>
+            </div>
+        `;
+    }
+
+    setMinimumDates();
+    attachListeners();
+    updateSummary();
+});
+
+/* =========================
+   SET DEFAULT DATES
+========================= */
+function setMinimumDates() {
+    const today = new Date();
+    const minDate = today.toISOString().split('T')[0];
+
+    const pickup = document.getElementById('pickupDate');
+    const ret = document.getElementById('returnDate');
+
+    pickup.min = minDate;
+    pickup.value = minDate;
+
+    ret.min = minDate;
+
+    // Default return = next day
+    let nextDay = new Date();
+    nextDay.setDate(today.getDate() + 1);
+    ret.value = nextDay.toISOString().split('T')[0];
+}
+
+/* =========================
+   LISTENERS
+========================= */
+function attachListeners() {
+    const fields = [
+        'pickupDate',
+        'returnDate',
+        'pickupTime',
+        'returnTime',
+        'pickupLocation',
+        'returnLocation',
+        'gps',
+        'insurance',
+        'childSeat',
+        'extraDriver'
+    ];
+
+    fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        el.addEventListener('change', () => {
+            autoFixDates();
+            updateSummary();
+        });
+
+        el.addEventListener('blur', () => {
+            autoFixDates();
+            updateSummary();
+        });
+    });
+}
+
+/* =========================
+   AUTO FIX DATES
+========================= */
+function autoFixDates() {
+    const pickup = new Date(document.getElementById('pickupDate').value);
+    const ret = new Date(document.getElementById('returnDate').value);
+
+    if (ret <= pickup) {
+        let newReturn = new Date(pickup);
+        newReturn.setDate(pickup.getDate() + 1);
+        document.getElementById('returnDate').value = newReturn.toISOString().split('T')[0];
+    }
+}
+
+/* =========================
+   VALIDATION
+========================= */
+function validateDates() {
+    const pickup = new Date(document.getElementById('pickupDate').value);
+    const ret = new Date(document.getElementById('returnDate').value);
+
+    if (ret <= pickup) {
+        return false;
+    }
+    return true;
+}
+
+/* =========================
+   DURATION
+========================= */
+function calculateDuration() {
+    const pickup = new Date(document.getElementById('pickupDate').value);
+    const ret = new Date(document.getElementById('returnDate').value);
+
+    let duration = Math.ceil((ret - pickup) / (1000 * 60 * 60 * 24));
+    return duration > 0 ? duration : 1;
+}
+
+/* =========================
+   CALCULATE TOTAL
+========================= */
+function calculateTotal() {
+    if (!selectedVehicle) return;
+
+    const duration = calculateDuration();
+    const dailyRate = Number(selectedVehicle.dailyRate) || 0;
+
+    let subtotal = dailyRate * duration;
+
+    let addOns = 0;
+    if (document.getElementById('gps').checked) addOns += 5 * duration;
+    if (document.getElementById('insurance').checked) addOns += 15 * duration;
+    if (document.getElementById('childSeat').checked) addOns += 8 * duration;
+    if (document.getElementById('extraDriver').checked) addOns += 10 * duration;
+
+    const subtotalWithAddOns = subtotal + addOns;
+    const taxes = subtotalWithAddOns * 0.13;
+    const total = subtotalWithAddOns + taxes;
+
+    document.getElementById('summaryDailyRate').textContent = `$${dailyRate.toFixed(2)}`;
+    document.getElementById('summarySubtotal').textContent = `$${subtotal.toFixed(2)}`;
+    document.getElementById('summaryAddOns').textContent = `$${addOns.toFixed(2)}`;
+    document.getElementById('summaryTaxes').textContent = `$${taxes.toFixed(2)}`;
+    document.getElementById('summaryTotal').textContent = `$${total.toFixed(2)}`;
+}
+
+/* =========================
+   UPDATE SUMMARY
+========================= */
+function updateSummary() {
+    const pickupDate = document.getElementById('pickupDate').value;
+    const returnDate = document.getElementById('returnDate').value;
+
+    document.getElementById('summaryPickupDate').textContent = pickupDate || '—';
+    document.getElementById('summaryReturnDate').textContent = returnDate || '—';
+
+    if (pickupDate && returnDate) {
+        const duration = calculateDuration();
+
+        document.getElementById('summaryDuration').textContent =
+            `${duration} day${duration !== 1 ? 's' : ''}`;
+
+        calculateTotal();
+    }
+}
+
+/* =========================
+   FORM SUBMIT
+========================= */
+document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const currentUser = JSON.parse(sessionStorage.getItem('torontoriders_current_user') || 'null');
+
+    if (!currentUser) {
+        alert('Please log in to book a car.');
+        return;
+    }
+
+    if (!selectedVehicle) {
+        alert('No vehicle selected.');
+        return;
+    }
+
+    const pickupDate = document.getElementById('pickupDate').value;
+    const pickupTime = document.getElementById('pickupTime').value;
+    const pickupLocation = document.getElementById('pickupLocation').value;
+
+    const returnDate = document.getElementById('returnDate').value;
+    const returnTime = document.getElementById('returnTime').value;
+    const returnLocation = document.getElementById('returnLocation').value;
+
+    const duration = calculateDuration();
+    const dailyRate = Number(selectedVehicle.dailyRate) || 0;
+
+    let addOnsTotal = 0;
+    if (document.getElementById('gps').checked) addOnsTotal += 5 * duration;
+    if (document.getElementById('insurance').checked) addOnsTotal += 15 * duration;
+    if (document.getElementById('childSeat').checked) addOnsTotal += 8 * duration;
+    if (document.getElementById('extraDriver').checked) addOnsTotal += 10 * duration;
+
+    const subtotal = dailyRate * duration;
+    const taxes = (subtotal + addOnsTotal) * 0.13;
+    const total = subtotal + addOnsTotal + taxes;
+
+    const booking = {
+        id: Date.now().toString(),
+        email: currentUser.email,
+        userId: currentUser.id,
+        vehicleId: selectedVehicle.id,
+        vehicle: selectedVehicle,
+        pickupDate,
+        pickupTime,
+        pickupLocation,
+        returnDate,
+        returnTime,
+        returnLocation,
+        duration,
+        pricing: { dailyRate, subtotal, addOnsTotal, taxes, total },
+        bookingDate: new Date().toISOString()
+    };
+
+    const bookings = JSON.parse(localStorage.getItem('torontoriders_bookings') || '[]');
+    bookings.push(booking);
+    localStorage.setItem('torontoriders_bookings', JSON.stringify(bookings));
+
+    try {
+        await fetch('http://localhost:5000/api/bookings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(booking)
+        });
+    } catch (err) {
+        console.error('Backend save failed:', err);
+    }
+
+    alert('Booking successful!');
+    window.location.href = 'my_rentals.html';
+});
+</script>
+</body>
+</html>

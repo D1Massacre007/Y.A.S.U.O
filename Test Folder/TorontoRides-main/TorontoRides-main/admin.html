@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Toronto Riders - Business Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 50'%3E%3Ctext x='0' y='40' font-size='40' font-family='Arial' fill='%23FFFFFF'%3EToronto%3Ctspan fill='%23FF6B35'%3ERiders%3C/tspan%3E.ca%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h1>Toronto<span class="orange">Riders</span>.ca</h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="company.html">Company</a>
+                <a href="cars.html">Cars</a>
+                <a href="admin.html" class="active">Admin Panel</a>
+            </div>
+            <div class="nav-auth" id="navAuth">
+                <button class="btn-secondary" onclick="window.location.href='sign_in.html'">Sign In</button>
+                <button class="btn-primary" onclick="window.location.href='sign_up.html'">Sign Up</button>
+            </div>
+            <div class="nav-user" id="navUser" style="display: none;">
+                <span class="user-email" id="userEmail"></span>
+                <button class="btn-secondary" onclick="handleLogout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="admin-hero">
+        <h1>Business Admin Panel</h1>
+        <p>Manage your vehicle listings on Toronto Riders</p>
+    </section>
+
+    <section class="admin-wrapper">
+        <div class="admin-container" id="adminContent">
+            <!-- Tabs Navigation -->
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-tab="vehicles">
+                    <span class="tab-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 17h14v-5H5v5z"></path>
+                            <path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2"></path>
+                            <path d="M19 17h2a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2"></path>
+                            <circle cx="7" cy="17" r="2"></circle>
+                            <circle cx="17" cy="17" r="2"></circle>
+                        </svg>
+                    </span>
+                    My Vehicles
+                </button>
+                <button class="tab-btn" data-tab="upload">
+                    <span class="tab-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                    </span>
+                    Upload Vehicle
+                </button>
+                <button class="tab-btn" data-tab="bookings">
+                    <span class="tab-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                    </span>
+                    Active Bookings
+                </button>
+            </div>
+
+            <!-- Tab: My Vehicles -->
+            <div id="vehicles-tab" class="tab-content active">
+                <div class="admin-section">
+                    <h2>My Vehicle Listings</h2>
+                    <div id="vehiclesList" class="vehicles-grid">
+                        <p class="loading">Loading your vehicles...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Upload Vehicle -->
+            <div id="upload-tab" class="tab-content">
+                <div class="admin-section">
+                    <h2>Add New Vehicle</h2>
+                    <form id="vehicleForm" class="vehicle-form">
+                        <div class="form-section-title">Basic Information</div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="vehicleName">Vehicle Name *</label>
+                                <input type="text" id="vehicleName" placeholder="e.g. Tesla Model 3" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="companyName">Company Name *</label>
+                                <input type="text" id="companyName" placeholder="e.g. Premium Rentals" required>
+                            </div>
+                        </div>
+
+                        <div class="form-section-title">Vehicle Details</div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="make">Make *</label>
+                                <input type="text" id="make" placeholder="e.g. Tesla" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="model">Model *</label>
+                                <input type="text" id="model" placeholder="e.g. Model 3" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="year">Year *</label>
+                                <input type="number" id="year" placeholder="2024" min="2000" max="2030" required>
+                            </div>
+                        </div>
+
+                        <div class="form-section-title">Specifications</div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="category">Category *</label>
+                                <select id="category" required>
+                                    <option value="">Select category</option>
+                                    <option value="sedan">Sedan</option>
+                                    <option value="suv">SUV</option>
+                                    <option value="sports">Sports Car</option>
+                                    <option value="luxury">Luxury</option>
+                                    <option value="truck">Truck</option>
+                                    <option value="electric">Electric</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="transmission">Transmission *</label>
+                                <select id="transmission" required>
+                                    <option value="">Select transmission</option>
+                                    <option value="automatic">Automatic</option>
+                                    <option value="manual">Manual</option>
+                                    <option value="electric">Electric</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="seats">Seats *</label>
+                                <input type="number" id="seats" placeholder="5" min="1" max="8" required>
+                            </div>
+                        </div>
+
+                        <div class="form-section-title">Pricing</div>
+
+                        <div class="form-group">
+                            <label for="pricePerDay">Price per Day (CAD) *</label>
+                            <input type="number" id="pricePerDay" placeholder="89" step="0.01" min="0" required>
+                        </div>
+
+                        <div class="form-section-title">Description & Features</div>
+
+                        <div class="form-group">
+                            <label for="description">Description *</label>
+                            <textarea id="description" placeholder="Describe your vehicle..." required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="features">Features (comma separated) *</label>
+                            <input type="text" id="features" placeholder="e.g., Bluetooth, GPS, Backup Camera, Leather Seats" required>
+                        </div>
+
+                        <div class="form-section-title">Vehicle Image</div>
+
+                        <div class="form-group">
+                            <label for="imageFile">Upload Image *</label>
+                            <div class="custom-file-upload">
+                                <input type="file" id="imageFile" accept="image/*" required style="display: none;">
+                                <button type="button" class="btn-secondary" onclick="document.getElementById('imageFile').click()" style="width: 100%;">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="17 8 12 3 7 8"></polyline>
+                                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                    Choose File
+                                </button>
+                            </div>
+                            <span id="fileName" style="display: block; margin-top: 0.5rem; color: var(--color-gray-dark); font-size: 0.9rem;">No file chosen</span>
+                            <p style="font-size: 0.85rem; color: var(--color-gray-dark); margin-top: 0.5rem;">Upload a clear photo of your vehicle (JPG, PNG, or WebP)</p>
+                            <div id="imagePreview" style="display:none; margin-top: 1rem;">
+                                <img id="previewImg" src="" alt="Preview" style="max-width: 100%; max-height: 300px; border-radius: 8px; border: 2px solid var(--color-gray-light);">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary">Publish Vehicle</button>
+                        <span id="formError" class="error-message"></span>
+                        <span id="formSuccess" class="success-message"></span>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tab: Active Bookings -->
+            <div id="bookings-tab" class="tab-content">
+                <div class="admin-section">
+                    <h2>Active Bookings</h2>
+                    <div id="bookingsList" class="bookings-list">
+                        <p class="loading">Loading bookings...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section footer-contact">
+                <h3>Contact Us</h3>
+                <div class="contact-item">
+                    <svg class="contact-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1112 6a2.5 2.5 0 010 5.5z"/></svg>
+                    <div class="contact-text">123 Queen Street West<br>Toronto, ON M5H 2M9<br>Canada</div>
+                </div>
+                <div class="contact-item">
+                    <svg class="contact-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6.6 10.8a15.05 15.05 0 006.6 6.6l2.2-2.2a1 1 0 01.9-.25c1 .25 2 .4 3 .4a1 1 0 011 1V20a1 1 0 01-1 1C9.4 21 3 14.6 3 6a1 1 0 011-1h2.5a1 1 0 011 1c0 1 .15 2 .4 3 .12.4 0 .86-.3 1.2l-2 2z"/></svg>
+                    <div class="contact-text">+1 (416) 555-0123</div>
+                </div>
+                <div class="contact-item">
+                    <svg class="contact-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                    <div class="contact-text"><a href="mailto:info@torontoriders.ca">info@torontoriders.ca</a></div>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h3>About Toronto Riders</h3>
+                <p style="max-width:420px">Your trusted car rental service in Toronto. We provide quality vehicles for every need, from daily commutes to special occasions.</p>
+            </div>
+
+            <div class="footer-section">
+                <h3>Follow Us</h3>
+                <div class="social-links">
+                    <a class="social-link" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22 12a10 10 0 10-11.5 9.9v-7h-2.2V12h2.2V9.8c0-2.2 1.3-3.4 3.2-3.4.9 0 1.8.16 1.8.16v2h-1c-1 0-1.3.62-1.3 1.3V12h2.3l-.37 2.9h-1.93v7A10 10 0 0022 12z"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 TorontoRiders.ca. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+let currentUser = null;
+let businessVehicles = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateAuthUI();
+    if (!checkAdminAccess()) return;
+    setupAdminTabs();
+    setupVehicleForm();
+    loadBusinessVehicles();
+});
+
+function checkAdminAccess() {
+    currentUser = JSON.parse(sessionStorage.getItem('torontoriders_current_user') || 'null');
+    
+    if (!currentUser || currentUser.accountType !== 'business') {
+        document.getElementById('adminContent').innerHTML = `
+            <div class="no-rentals" style="padding: 4rem 2rem; text-align: center;">
+                <h2 style="margin-bottom: 1rem;">Access Denied</h2>
+                <p style="margin-bottom: 1.5rem;">Only business accounts can access the admin panel.</p>
+                <a href="sign_up.html" class="btn-primary" style="margin-right: 1rem;">Create Business Account</a>
+                <a href="sign_in.html" class="btn-secondary">Sign In</a>
+            </div>
+        `;
+        return false;
+    }
+    return true;
+}
+
+function setupAdminTabs() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabName = button.getAttribute('data-tab');
+
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            button.classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+
+            if (tabName === 'bookings') {
+                loadBookings(); // ✅ correct function
+            }
+        });
+    });
+}
+
+async function loadBookings() {
+    try {
+        const res = await fetch('http://localhost:5000/api/bookings');
+
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        const bookings = await res.json();
+
+        console.log("BOOKINGS LOADED:", bookings); // ✅ DEBUG
+
+        const container = document.getElementById('bookingsList');
+        container.innerHTML = '';
+
+        if (!bookings || bookings.length === 0) {
+            container.innerHTML = '<p>No bookings found.</p>';
+            return;
+        }
+
+        bookings.forEach(b => {
+            const vehicle = b.Vehicle;
+
+            const div = document.createElement('div');
+            div.className = 'booking-card';
+
+            div.innerHTML = `
+                <h3>${vehicle?.name || 'Unknown Vehicle'}</h3>
+                <p><strong>Name:</strong> ${b.firstName} ${b.lastName}</p>
+                <p><strong>Email:</strong> ${b.email}</p>
+                <p><strong>Pickup:</strong> ${b.pickupDate} ${b.pickupTime}</p>
+                <p><strong>Return:</strong> ${b.returnDate} ${b.returnTime}</p>
+                <p><strong>Status:</strong> ${b.status}</p>
+            `;
+
+            container.appendChild(div);
+        });
+
+    } catch (err) {
+        console.error('Error loading bookings:', err);
+
+        const container = document.getElementById('bookingsList');
+        container.innerHTML = '<p style="color:red;">Failed to load bookings.</p>';
+    }
+}
+
+function loadBusinessVehicles() {
+    const businessVehiclesJson = localStorage.getItem('torontoriders_business_vehicles');
+    const allBusinessVehicles = businessVehiclesJson ? JSON.parse(businessVehiclesJson) : [];
+    
+    businessVehicles = allBusinessVehicles.filter(v => v.businessEmail === currentUser.email);
+    displayBusinessVehicles();
+}
+
+function displayBusinessVehicles() {
+    const container = document.getElementById('vehiclesList');
+    
+    if (businessVehicles.length === 0) {
+        container.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+                <p style="color: var(--color-gray-dark); font-size: 1rem; margin-bottom: 1rem;">You haven't uploaded any vehicles yet.</p>
+                <button class="btn-primary" onclick="switchTab('upload')">Add Your First Vehicle</button>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = businessVehicles.map(vehicle => `
+        <div class="vehicle-card-admin">
+            <img src="${vehicle.image || 'images/default-car.jpg'}" alt="${vehicle.name}" class="vehicle-card-image">
+            <div class="vehicle-card-content">
+                <h3>${vehicle.name}</h3>
+                <p class="vehicle-make-model">${vehicle.make} ${vehicle.model} (${vehicle.year})</p>
+                <div class="vehicle-details">
+                    <span class="detail-badge">${vehicle.category}</span>
+                    <span class="detail-badge">${vehicle.transmission}</span>
+                    <span class="detail-badge">${vehicle.seats} seats</span>
+                </div>
+                <div class="vehicle-price">$${vehicle.pricePerDay}/day</div>
+                <div class="vehicle-actions">
+                    <button class="btn-danger btn-small" onclick="deleteVehicle('${vehicle.id}')">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function switchTab(tabName) {
+    const button = document.querySelector(`[data-tab="${tabName}"]`);
+    if (button) button.click();
+}
+
+function setupVehicleForm() {
+    const form = document.getElementById('vehicleForm');
+    if (!form) return;
+
+    form.addEventListener('submit', handleVehicleSubmit);
+
+    const imageFile = document.getElementById('imageFile');
+    if (imageFile) {
+        imageFile.addEventListener('change', handleImagePreview);
+    }
+}
+
+function handleImagePreview(e) {
+    const file = e.target.files[0];
+    const fileNameSpan = document.getElementById('fileName');
+    
+    if (!file) {
+        document.getElementById('imagePreview').style.display = 'none';
+        if (fileNameSpan) fileNameSpan.textContent = 'No file chosen';
+        return;
+    }
+
+    if (fileNameSpan) fileNameSpan.textContent = file.name;
+
+    if (!file.type.startsWith('image/')) {
+        alert('Please select a valid image file');
+        e.target.value = '';
+        return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Image size must be less than 5MB');
+        e.target.value = '';
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        document.getElementById('previewImg').src = event.target.result;
+        document.getElementById('imagePreview').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+}
+
+/* =========================
+   MAIN SUBMIT HANDLER
+========================= */
+async function handleVehicleSubmit(e) {
+    e.preventDefault();
+
+    const token = sessionStorage.getItem('token');
+
+    const vehicleData = {
+        name: document.getElementById('vehicleName').value,
+        companyName: document.getElementById('companyName').value,
+        make: document.getElementById('make').value,
+        model: document.getElementById('model').value,
+        year: document.getElementById('year').value,
+        category: document.getElementById('category').value,
+        transmission: document.getElementById('transmission').value,
+        seats: document.getElementById('seats').value,
+        pricePerDay: document.getElementById('pricePerDay').value,
+        description: document.getElementById('description').value,
+        features: document.getElementById('features').value,
+        image: ""
+    };
+
+    const file = document.getElementById('imageFile').files[0];
+
+    if (!file) {
+        alert('Please upload an image');
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = async function () {
+        vehicleData.image = reader.result;
+
+        try {
+            const res = await fetch('http://localhost:5000/api/vehicles', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(vehicleData)
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                alert('Vehicle added successfully!');
+
+                saveVehicleData(
+                    vehicleData.name,
+                    vehicleData.companyName,
+                    vehicleData.make,
+                    vehicleData.model,
+                    vehicleData.year,
+                    vehicleData.category,
+                    vehicleData.transmission,
+                    vehicleData.seats,
+                    vehicleData.pricePerDay,
+                    vehicleData.description,
+                    vehicleData.features,
+                    vehicleData.image
+                );
+
+                document.getElementById('vehicleForm').reset();
+            } else {
+                alert(data.error || 'Error adding vehicle');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Server error');
+        }
+    };
+
+    reader.readAsDataURL(file);
+}
+
+function saveVehicleData(vehicleName, companyName, make, model, year, category, transmission, seats, pricePerDay, description, features, imageData) {
+    const businessVehiclesJson = localStorage.getItem('torontoriders_business_vehicles');
+    const allBusinessVehicles = businessVehiclesJson ? JSON.parse(businessVehiclesJson) : [];
+
+    const newVehicle = {
+        id: 'vehicle_' + Date.now(),
+        name: vehicleName,
+        companyName: companyName,
+        make: make,
+        model: model,
+        year: year,
+        category: category,
+        transmission: transmission,
+        seats: seats,
+        pricePerDay: pricePerDay,
+        description: description,
+        features: features.split(',').map(f => f.trim()),
+        image: imageData,
+        businessEmail: currentUser.email,
+        createdAt: new Date().toISOString()
+    };
+
+    allBusinessVehicles.push(newVehicle);
+    localStorage.setItem('torontoriders_business_vehicles', JSON.stringify(allBusinessVehicles));
+
+    loadBusinessVehicles();
+}
+
+function deleteVehicle(vehicleId) {
+    if (!confirm('Are you sure you want to delete this vehicle?')) return;
+
+    businessVehicles = businessVehicles.filter(v => v.id !== vehicleId);
+    
+    const businessVehiclesJson = localStorage.getItem('torontoriders_business_vehicles');
+    const allBusinessVehicles = businessVehiclesJson ? JSON.parse(businessVehiclesJson) : [];
+    const updated = allBusinessVehicles.filter(v => v.id !== vehicleId);
+    localStorage.setItem('torontoriders_business_vehicles', JSON.stringify(updated));
+
+    displayBusinessVehicles();
+}
+
+/* =========================
+   ✅ ADDED: BOOKINGS LOADER
+========================= */
+
+
+</script>
+
+
+
+</body>
+</html>

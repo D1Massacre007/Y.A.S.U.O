@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Toronto Riders - Cars</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 50'%3E%3Ctext x='0' y='40' font-size='40' font-family='Arial' fill='%23FFFFFF'%3EToronto%3Ctspan fill='%23FF6B35'%3ERiders%3C/tspan%3E.ca%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h1>Toronto<span class="orange">Riders</span>.ca</h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="company.html">Company</a>
+                <a href="cars.html" class="active">Cars</a>
+                <a href="booking.html" id="bookingLink">Booking</a>
+                <a href="my_rentals.html" id="myRentalsLink" style="display: none;">My Rentals</a>
+                <a href="admin.html" id="adminLink" style="display: none;">Admin Panel</a>
+            </div>
+
+            <div class="nav-auth" id="navAuth">
+                <button class="btn-secondary" onclick="window.location.href='sign_in.html'">Sign In</button>
+                <button class="btn-primary" onclick="window.location.href='sign_up.html'">Sign Up</button>
+            </div>
+            <div class="nav-user" id="navUser" style="display: none;">
+                <span class="user-email" id="userEmail"></span>
+                <button class="btn-secondary" onclick="handleLogout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="cars-section">
+        <div class="container cars-layout">
+            <aside class="filters-column">
+                <div class="filters-card">
+                    <h3>Filters</h3>
+                    <div id="filters"></div>
+                    <button id="clearFilters" class="btn-secondary" style="margin-top:1rem;">Clear Filters</button>
+                </div>
+            </aside>
+
+            <main class="cars-column">
+                <div class="cars-top">
+                    <div class="search-wrap">
+                        <svg class="search-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM10 14a4 4 0 110-8 4 4 0 010 8z"/></svg>
+                        <input id="searchInput" class="search-input" placeholder="Search for cars by name, make, model, or company...">
+                    </div>
+                    <div id="resultsCount" style="margin-top:0.75rem;color:var(--color-gray-dark)"></div>
+                </div>
+
+                <div id="carsGrid" class="car-grid cars-list"></div>
+            </main>
+        </div>
+    </section>
+
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section footer-contact">
+                <h3>Contact Us</h3>
+                <div class="contact-item">
+                    <svg class="contact-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1112 6a2.5 2.5 0 010 5.5z"/></svg>
+                    <div class="contact-text">123 Queen Street West<br>Toronto, ON M5H 2M9<br>Canada</div>
+                </div>
+                <div class="contact-item">
+                    <svg class="contact-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6.6 10.8a15.05 15.05 0 006.6 6.6l2.2-2.2a1 1 0 01.9-.25c1 .25 2 .4 3 .4a1 1 0 011 1V20a1 1 0 01-1 1C9.4 21 3 14.6 3 6a1 1 0 011-1h2.5a1 1 0 011 1c0 1 .15 2 .4 3 .12.4 0 .86-.3 1.2l-2 2z"/></svg>
+                    <div class="contact-text">+1 (416) 555-0123</div>
+                </div>
+                <div class="contact-item">
+                    <svg class="contact-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                    <div class="contact-text"><a href="mailto:info@torontoriders.ca">info@torontoriders.ca</a></div>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h3>About Toronto Riders</h3>
+                <p style="max-width:420px">Your trusted car rental service in Toronto. We provide quality vehicles for every need, from daily commutes to special occasions.</p>
+            </div>
+
+            <div class="footer-section">
+                <h3>Follow Us</h3>
+                <div class="social-links">
+                    <a class="social-link" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22 12a10 10 0 10-11.5 9.9v-7h-2.2V12h2.2V9.8c0-2.2 1.3-3.4 3.2-3.4.9 0 1.8.16 1.8.16v2h-1c-1 0-1.3.62-1.3 1.3V12h2.3l-.37 2.9h-1.93v7A10 10 0 0022 12z"/></svg>
+                    </a>
+                    <a class="social-link" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22 5.9c-.6.3-1.3.6-2 .7.7-.4 1.3-1 1.6-1.8-.7.4-1.5.7-2.4.9A4.1 4.1 0 0015.5 5c-2.3 0-4.1 1.9-4.1 4.2 0 .3 0 .7.1 1-3.4-.2-6.4-1.9-8.4-4.6-.4.6-.6 1.3-.6 2 0 1.4.7 2.6 1.8 3.3-.6 0-1.2-.2-1.7-.4v.1c0 2 1.4 3.6 3.3 4-.3.1-.6.1-.9.1-.2 0-.4 0-.6-.1.4 1.3 1.6 2.2 3 2.2A8.4 8.4 0 012 19.5 11.9 11.9 0 008 21c7.6 0 11.7-6.3 11.7-11.7v-.5c.8-.6 1.4-1.3 1.9-2.1-.7.3-1.5.6-2.3.6z"/></svg>
+                    </a>
+                    <a class="social-link" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 2h10a5 5 0 015 5v10a5 5 0 01-5 5H7a5 5 0 01-5-5V7a5 5 0 015-5zm5 5.8A4.2 4.2 0 1016.2 12 4.2 4.2 0 0012 7.8zm6.4-1.8a1.2 1.2 0 11-1.2 1.2 1.2 1.2 0 011.2-1.2z"/></svg>
+                    </a>
+                    <a class="social-link" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4.98 3.5A2.5 2.5 0 004.98 8.5 2.5 2.5 0 004.98 3.5zM3 9h4v12H3zM9 9h3.6v1.7h.1c.5-.9 1.7-1.7 3.4-1.7 3.6 0 4.3 2.4 4.3 5.6V21h-4v-5.1c0-1.2 0-2.7-1.6-2.7-1.6 0-1.8 1.2-1.8 2.6V21H9z"/></svg>
+                    </a>
+                    <a class="social-link" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 15l5.2-3L10 9v6zm11-6.1s0-1-.4-1.5c-.4-.9-1.5-1-1.9-1.1C16.9 6 12 6 12 6s-4.9 0-6.7.3c-.4 0-1.5.1-1.9 1.1C3 7.9 3 9 3 9s0 1 .4 1.5c.4.9 1.5 1 1.9 1.1C7.1 12 12 12 12 12s4.9 0 6.7-.3c.4 0 1.5-.1 1.9-1.1.3-.5.4-1.5.4-1.5z"/></svg>
+                    </a>
+                    <a class="social-link" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M16 3h2v6c1.1 0 2 .9 2 2 0 4-4 6-8 6s-6.8-2.1-6.8-6.5v-1.5h2V13c0 2.3 2.2 3.5 4.8 3.5 1.9 0 3.9-.6 3.9-2.7V9h-1c-1.7 0-3-.9-3-2V3z"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 TorontoRiders.ca. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Show/hide navigation items based on user account type
+        const currentUser = JSON.parse(sessionStorage.getItem('torontoriders_current_user') || 'null');
+        if (currentUser && currentUser.accountType === 'business') {
+            const businessRentalsLink = document.getElementById('businessRentalsLink');
+            if (businessRentalsLink) businessRentalsLink.style.display = 'inline-block';
+        }
+
+        
+    </script>
+    <script>
+let cars = [];
+
+// ✅ LOAD VEHICLES FROM BACKEND
+async function loadCars() {
+    try {
+        const res = await fetch('http://localhost:5000/api/vehicles');
+        cars = await res.json();
+
+        console.log("Cars loaded:", cars);
+
+        renderCars(cars);
+
+    } catch (err) {
+        console.error("Failed to load cars:", err);
+    }
+}
+
+// ✅ RENDER CARS
+function renderCars(carsList) {
+    const grid = document.getElementById('carsGrid');
+
+    grid.innerHTML = carsList.map(car => `
+        <div class="car-card">
+            <h3>${car.name || 'Vehicle'}</h3>
+            <p><strong>${car.make || 'N/A'} ${car.model || ''}</strong></p>
+            <p>Category: ${car.category || 'N/A'}</p>
+            <p>Price: $${car.pricePerDay || 0}/day</p>
+
+            <button class="btn-primary" onclick='selectVehicle(${JSON.stringify(car)})'>
+                Book Now
+            </button>
+        </div>
+    `).join('');
+}
+
+// ✅ STORE SELECTED VEHICLE + REDIRECT
+function selectVehicle(vehicle) {
+    console.log("Selected vehicle:", vehicle);
+
+    sessionStorage.setItem('selectedVehicle', JSON.stringify(vehicle));
+
+    window.location.href = 'booking.html';
+}
+
+// ✅ INIT
+loadCars();
+</script>
+</body>
+</html>
